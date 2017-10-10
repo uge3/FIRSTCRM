@@ -1,0 +1,214 @@
+
+
+
+# Create your views here.
+
+
+
+from django.shortcuts import render,redirect
+
+from django import conf
+from django.db.models import Q
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from  king_admin import forms
+from  django.contrib.auth.decorators import login_required
+from king_admin.utils.page import pag_list
+import json
+from king_admin import permission
+
+# Create your views here.
+#print("dj conf:",conf.settings)
+
+
+
+from king_admin import app_config
+from king_admin import base_admin
+
+
+#模版函数
+
+
+#app 下表名
+#@permission.check_permission
+@login_required
+def app_index(request):
+    # for app in conf.settings.INSTALLED_APPS:
+    #     print(app)
+    print("registered_sites",base_admin.site.registered_sites)
+    print("sites",base_admin.site)
+    return render(request, 'kingadmin/app_index.html', {"site":base_admin.site})#返回所有注册app的对象
+
+#单个app
+@login_required
+def table_index(request,app_name):
+    bases=base_admin.site.registered_sites[app_name]#取出对应app对象
+    return render(request, 'kingadmin/table_index.html', {"site":bases,'app_name':app_name})
+
+#条件筛选
+def filter_querysets(request,queryset):
+    condtions = {}#定义一个字典用来存过滤的条件
+    print(request.GET,'-------+++++++++++++-----------')
+    for k,v in request.GET.items():
+        if k in ("page","_o","_q") :continue#判断标签是否存在 自定义的名称
+        if v:
+            condtions[k] = v#进行配对字典
+    print("condtions:",condtions)
+
+    query_res = queryset.filter(**condtions)#调用过滤
+    return query_res,condtions
+
+#排序
+def get_orderby(request,queryset):
+    order_by_key = request.GET.get("_o")
+    #order_by_key1=order_by_key.strip()
+    if order_by_key: #has sort condtion
+        query_res = queryset.order_by(order_by_key.strip())
+    else:
+        query_res = queryset.order_by("-id")
+    return query_res
+
+#关键字
+def get_queryset_search_result(request,queryset,admin_obj):
+    search_key = request.GET.get("_q", "")#取定义名,默认为空
+    q_obj = Q()#多条件搜索
+    q_obj.connector = "OR" # or/或 条件
+    for column in admin_obj.search_fields:
+        q_obj.children.append(("%s__contains" % column, search_key))#运态添加多个条件
+    res = queryset.filter(q_obj)#对数据库进行条件搜索
+    return res#返回结果
+
+#详细列表
+#@permission.check_permission
+@login_required
+def table_data_list(request,app_name,model_name):
+    admin_obj = base_admin.site.registered_sites[app_name][model_name]#获取到表名的数据
+    if request.method == "POST":#批量操作
+        action = request.POST.get("action_select")#要调用的自定制功能函数
+        selected_ids = request.POST.get("selected_ids")#前端提交的数据
+        print(selected_ids,type(selected_ids),"selected_ids-----")
+        #if type(selected_ids)!='str':
+        #selected_ids = json.loads(selected_ids)#进行转换数据
+        print(selected_ids,type(action),action,"selected_ids==========")
+        #print("action:",selected_ids,action)
+        if selected_ids :
+            #selected_ids = json.loads(selected_ids)#进行转换数据
+            selected_objs = admin_obj.model.objects.filter(id__in=selected_ids.split(','))#返回之前所选中的条件
+        else:
+            raise KeyError('No object selected')
+
+        if hasattr(admin_obj,action):
+            action_func = getattr(admin_obj,action)#如果admin_obj 对象中有属性action 则打印self.action的值，否则打印'not find'
+            request._admin_action=action#添加action内容
+            print(request._admin_action,action,'<--------')
+        return action_func(request,selected_objs)
+
+
+    obj_list  =  admin_obj.model.objects.all()#获取传过来的所有对象
+    queryset,condtions =  filter_querysets(request, obj_list)# 调用条件过滤
+    #after search
+    queryset = get_queryset_search_result(request,queryset,admin_obj)#关键搜索
+    print("---->",queryset)
+
+    sorted_queryset = get_orderby(request,queryset)#排序
+
+    page = request.GET.get('page')#获取当前页面数
+    objs=pag_list(page,sorted_queryset,admin_obj)#调用函数 分页
+
+    admin_obj.querysets =  objs
+    admin_obj.filter_condtions = condtions
+    return render(request, "kingadmin/table_data_list.html", locals())#locals 返回一个包含当前范围的局部变量字典。
+
+
+#分页
+# def pag_list(page,sorted_queryset,admin_obj):#当前页   排序后数据
+#     paginator = Paginator(sorted_queryset, admin_obj.list_per_page)#传入排序后数据,制定的每页显示数  # Show 25 contacts per page
+#     try:
+#         objs = paginator.page(page)#当前的页面的数据
+#     except PageNotAnInteger:#如果不是整数
+#         # If page is not an integer, deliver first page.
+#         objs = paginator.page(1)#返回第一页面的数据
+#     except EmptyPage:
+#         # If page is out of range (e.g. 9999), deliver last page of results.
+#         objs = paginator.page(paginator.num_pages)#最后页面的数据
+#     return objs #返回分页数据
+
+#修改内容
+#@permission.check_permission
+@login_required
+def table_change(request,app_name,model_name,obj_id):
+    admin_obj = base_admin.site.registered_sites[app_name][model_name]#表对象
+    model_form = forms.CreateModelForm(request,admin_obj=admin_obj)#modelform 生成表单 加验证
+    obj = admin_obj.model.objects.get(id=obj_id)#根据ID获取数据记录
+    if request.method == "GET":#如果是 GET 表示 是添加记录
+        obj_form = model_form(instance=obj)#数据传入表单
+    elif request.method == "POST":#如果是 POST 表示 是修改后的数据
+        obj_form = model_form(instance=obj,data=request.POST)#更新数据
+        if obj_form.is_valid():
+            obj_form.save()
+
+    return render(request, "kingadmin/table_change.html", locals())
+
+#添加
+@login_required
+def table_add(request,app_name,model_name):
+    admin_obj = base_admin.site.registered_sites[app_name][model_name]#表对象
+    admin_obj.is_add_form=True#表示为新增表单
+    model_form = forms.CreateModelForm(request,admin_obj=admin_obj)#生成 表单
+    if request.method == "GET":
+        print('get--->add', model_form)
+        obj_form = model_form()#跳转过来的为空
+
+    elif request.method == "POST":
+        obj_form = model_form(data=request.POST)#添加数据
+        if obj_form.is_valid():
+            try:
+                obj_form.save()#表单验证通过保存
+            except Exception as e:
+                return redirect("/king_admin/%s/%s/" % (app_name,model_name))#转到之前的页面
+        if not obj_form.errors:
+            return  redirect("/king_admin/%s/%s/" % (app_name,model_name))#转到之前的页面
+
+    return render(request, "kingadmin/table_add.html", locals())#locals 返回一个包含当前范围的局部变量字典。
+
+
+#删除
+@login_required
+def table_delete(request,app_name,model_name,obj_id):
+
+    admin_obj = base_admin.site.registered_sites[app_name][model_name]#表类
+    # model_form = forms.CreateModelForm(request,admin_obj=admin_obj)#生成 表单
+    obj=admin_obj.model.objects.get(id=obj_id)#类的对象
+    app_name=app_name
+    if admin_obj.readonly_table:
+        errors={'锁定的表单':'该表单:<%s>,已经锁定,不能删除当前记录!'%model_name}
+    else:
+        errors={}
+    if request.method=='POST':
+        if  not admin_obj.readonly_table:
+            obj.delete()#删除
+            return redirect("/king_admin/%s/%s/%s/" % (app_name,model_name,obj_id))#转到列表页面
+    return render(request, "kingadmin/table_del.html", locals())#locals 返回一个包含当前范围的局部变量字典。
+
+
+#密码修改
+@login_required
+def password_reset(request,app_name,model_name,obj_id):
+    '''密码修改'''
+    admin_obj = base_admin.site.registered_sites[app_name][model_name]#表类
+    model_form = forms.CreateModelForm(request,admin_obj=admin_obj)#modelform 生成表单 加验证
+    obj=admin_obj.model.objects.get(id=obj_id)#类表的对象
+    errors={}#错误提示
+    if request.method=='POST':
+        _password1=request.POST.get('password1')
+        _password2=request.POST.get('password2')
+        if _password1==_password2:
+            if len(_password1)>5:
+                obj.set_password(_password1)
+                obj.save()
+                return redirect(request.path.rstrip('password/'))
+            else:
+                errors['password_too_short']='must not less than 6 letters'
+        else:
+            errors['invalid_password']='passwords are not the same'#密码不一致
+
+    return render(request, "kingadmin/password_reset.html", locals())#locals 返回一个包含当前范围的局部变量字典。

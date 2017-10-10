@@ -1,0 +1,61 @@
+{% extends 'master/index.html' %}<!--继承后台主页-->
+
+
+{% block page_content %}
+    <div class="panel panel-info">
+   <h4>学员报名：</h4>
+</div>
+    <div id="content">
+        <form action="" class="form-horizontal col-lg-5" role="form" method="post">{% csrf_token %}
+
+        <span class="errors">{{ enroll_form.errors }}</span>
+        <div class="form-group">
+            <label for="inputeEmail4" class="col-sm-3">客户信息：</label>
+            <div class="col-sm-6">QQ:{{ customer_obj.qq }}  名字：{{ customer_obj.name }}</div>
+        </div>
+            <hr>
+{#        <div class="row">#}
+        <h3>已报班级</h3>
+        {% for enroll in enroll_obj_list %}
+            <div class="form-group">
+                <label for="inputeEmail4" class="col-sm-3">班级：</label>
+                <div class="col-sm-6">{{ enroll.enrolled_class }}</div>
+             </div>
+            <div class="form-group">
+                <label for="inputeEmail4" class="col-sm-3">课程顾问：</label>
+                <div class="col-sm-6">{{ enroll.consultant }}</div>
+            </div>
+            <hr>
+        {% endfor %}
+{#        </div>#}
+            <hr>
+        <h3>新报班级</h3>
+        {% for field in enroll_form %}
+            <div class="form-group">
+                <label for="inputeEmail4" class="col-sm-3">{{ field.label }}:</label>
+                <div class="col-sm-6">
+                    {{ field }}
+                </div>
+            </div>
+
+        {% endfor %}
+            <input type="submit" class="btn btn-info pull-right" value="下一步">
+        </form>
+        <div class="row">
+            <div>
+                <ul>
+                    {% for k,v in msgs.items %}
+                        <li>{{ k }}:{{ v }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div>
+                <ul>
+                    {{ enroll_obj.contract_url }}
+                </ul>
+            </div>
+
+        </div>
+
+    </div>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends 'master/index.html' %}
+{% load stu_tags %}
+
+{% block link %}
+
+{% endblock %}
+{% block page_content %}
+
+    <div class="panel-default">
+    <div class="row" style="margin-bottom: 20px" >
+        <ol class="breadcrumb">
+          <li><a href="/student/">Home</a></li>
+          <li><a href="/student/my_classes/">我的课程</a></li>
+          <li><a href="/student/studyrecords/{{ enroll_obj.id }}/">{{ enroll_obj.enrolled_class }}</a></li>
+          <li><a href="#">第:{{ studyrecord_obj.course_record.day_num }}节</a></li>
+        </ol>
+        </div>
+{#    <div class="panel-heading">班级:{{ studyrecord_obj.course_record.from_class }} | 第:{{ studyrecord_obj.course_record.day_num }}节</div>#}
+        <div class="panel-body">
+           <h3>作业标题:{{ studyrecord_obj.course_record.homework_title }}</h3>
+            <h4>作业详情: <pre>{{ studyrecord_obj.course_record.homework_content }}</pre> </h4>
+            <h4>老师评语: {{ studyrecord_obj.memo }} </h4>
+            <h4>本节成绩: {{ studyrecord_obj.score }} </h4>
+
+        </div>
+        <p>已经上传的文件:</p>
+        {% for file in file_lists %}
+            {% for foo in file %}
+                {{ foo }}  |
+            {% endfor %}
+            <br>
+        {% endfor %}
+
+        <p>请上传作业</p>
+                <form action="{{ request.path }}" class="dropzone" id="filerdropzones" method="post">{% csrf_token %}
+                   <div class="dz-default dz-message">
+                       <div class="dz-icon icon-wrap icon-circle icon-wrap-md">
+                           <i class="fa fa-cloud-upload fa-3x"></i>
+                       </div>
+
+                    <div>
+                        <p class="container">请将作业压缩打包后拖到这里或点击上传</p>
+                    </div>
+                    </div>
+               </form>
+
+    </div>
+{% endblock %}
+
+{% block js %}
+
+<script>
+
+    Dropzone.autoDiscover=false;
+    myDropzone=new Dropzone('#filerdropzones');
+    myDropzone.on('addedfile',function(file){
+        //判断是否有上传文件
+        console.log('_+_+_+_+_',file);
+    });
+    myDropzone.on("success",function(file,response){
+       console.log('文件上传时间',response) ;
+    });
+    $(document).ready(function(){//上传图片
+        Dropzone.options.filedr={
+            url:'{{ requset.path }}',//路径为 当前页
+            paramName:'file',//文件格式
+            maxFilesize:5,//MB
+            addRemvoeLinks:true,
+            maxFiles:2,
+            uploadMultiple:true,
+            accept:function(file,done){
+                if (!file.name.endsWith(".zip") ){
+                    alert('请上传.zip格式的压缩文件!');
+                    return false;
+                }else { done(
+
+                );}
+            }
+        }
+    });
+
+
+
+    </script>
+{% endblock %}

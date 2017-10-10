@@ -1,0 +1,44 @@
+{% extends 'master/index.html' %}<!--继承后台主页-->
+
+
+{% block page_content %}
+    <div class="panel panel-info">
+   <h4>学员信息审核：</h4>
+</div>
+    <div id="content">
+    <h4>学员信息</h4>
+
+    <table>
+        {% for foo in customers_form %}
+            <tr>
+                <td class="col-sm-3">{{ foo.label }} ： </td>
+                <td> {{ foo }} </td>
+            </tr>
+        {% endfor %}
+    </table>
+        <hr>
+    <h4>报名信息</h4>
+    <table>
+        {% for foo in enroll_form %}
+            <tr>
+                <td class="col-sm-3">{{ foo.label }} ： </td>
+                <td> {{ foo }} </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <hr>
+        <form action="" class="form-horizontal col-lg-5" role="form" method="post">{% csrf_token %}
+
+
+            <a class="btn btn-danger" href="{% url 'enrollment_rejection' enroll_obj.id %}">驳回合同</a>
+            <a class="btn btn-info pull-right" href="{% url 'payment' enroll_obj.id %}">审核通过</a>
+{#            <input type="submit" class="btn btn-info pull-right" value="下一步">#}
+        </form>
+        <div class="row">
+
+
+        </div>
+
+    </div>
+{% endblock %}
