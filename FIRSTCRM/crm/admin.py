@@ -147,6 +147,11 @@ class StudyRecordAdmin(admin.ModelAdmin):
     list_filter =['course_record','attendance','score','course_record__from_class','student']#排序
     list_editable = ['score','attendance']#可编辑
 
+#角色表
+class RoleAdmin(admin.ModelAdmin):
+    list_display = ['name']
+    # fieldsets = ('user_permissions')#权限
+    # filter_horizontal = ('permissions',)#权限
 
 
 admin.site.register(models.Customer,CustomerAdmin)##客户表
@@ -160,6 +165,7 @@ admin.site.register(models.StudyRecord,StudyRecordAdmin)##学习记录表
 admin.site.register(models.Enrollment)##报名表
 admin.site.register(models.Payment)##缴费记录
 #admin.site.register(models.UserProfile)##帐号表
-admin.site.register(models.Role)##角色表
+admin.site.register(models.Role,RoleAdmin)##角色表
+#admin.site.register(models.Role)##角色表
 admin.site.register(models.Menu)##菜单表
 admin.site.register(models.ContractTemplate)##合同表

@@ -93,7 +93,7 @@ class CustomerAdmin(BaseAdmin):
 #上课记录 讲师
 class CourseRecordAdmin(BaseAdmin):
     list_display = ['from_class','day_num','teacher','has_homework','homework_title','homework_content','outline','date']
-
+    list_filter = ('from_class','teacher','date')
     def initialize_studyrecords(self,request,queryset):#制定功能
         print()
         if len(queryset)>1:
@@ -145,7 +145,11 @@ class UserProfileAdmin(BaseAdmin):
     filter_horizontal = ('user_permissions','groups')
     modelform_exclude_fields=['last_login',]
 
-
+#报名表
+class EnrollmentAdmin(BaseAdmin):
+    list_display = ('customer','enrolled_class','consultant','contract_agreed','contract_approved')
+    list_filter =['enrolled_class','consultant']#排序
+    # readonly_fields = ['contract_agreed']#不可修改
 
 site.register(models.StudyRecord,StudyRecordAdmin)
 site.register(models.CourseRecord,CourseRecordAdmin)
@@ -153,5 +157,6 @@ site.register(models.Customer,CustomerAdmin)
 site.register(models.ClassList,ClassListAdmin)
 site.register(models.Course,CourseAdmin)
 site.register(models.UserProfile,UserProfileAdmin)
+site.register(models.Enrollment,EnrollmentAdmin)
 
 

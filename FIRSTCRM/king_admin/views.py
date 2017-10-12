@@ -14,12 +14,10 @@ from  king_admin import forms
 from  django.contrib.auth.decorators import login_required
 from king_admin.utils.page import pag_list
 import json
-from king_admin import permission
-
+#from king_admin import permission
+from crm.permissions import permission
 # Create your views here.
 #print("dj conf:",conf.settings)
-
-
 
 from king_admin import app_config
 from king_admin import base_admin
@@ -30,7 +28,9 @@ from king_admin import base_admin
 
 #app 下表名
 #@permission.check_permission
+
 @login_required
+@permission.check_permission#权限装饰器
 def app_index(request):
     # for app in conf.settings.INSTALLED_APPS:
     #     print(app)
@@ -40,6 +40,7 @@ def app_index(request):
 
 #单个app
 @login_required
+@permission.check_permission#权限装饰器
 def table_index(request,app_name):
     bases=base_admin.site.registered_sites[app_name]#取出对应app对象
     return render(request, 'kingadmin/table_index.html', {"site":bases,'app_name':app_name})
@@ -78,8 +79,8 @@ def get_queryset_search_result(request,queryset,admin_obj):
     return res#返回结果
 
 #详细列表
-#@permission.check_permission
 @login_required
+@permission.check_permission
 def table_data_list(request,app_name,model_name):
     admin_obj = base_admin.site.registered_sites[app_name][model_name]#获取到表名的数据
     if request.method == "POST":#批量操作
@@ -133,7 +134,7 @@ def table_data_list(request,app_name,model_name):
 #     return objs #返回分页数据
 
 #修改内容
-#@permission.check_permission
+@permission.check_permission
 @login_required
 def table_change(request,app_name,model_name,obj_id):
     admin_obj = base_admin.site.registered_sites[app_name][model_name]#表对象
@@ -149,6 +150,7 @@ def table_change(request,app_name,model_name,obj_id):
     return render(request, "kingadmin/table_change.html", locals())
 
 #添加
+@permission.check_permission
 @login_required
 def table_add(request,app_name,model_name):
     admin_obj = base_admin.site.registered_sites[app_name][model_name]#表对象
@@ -172,6 +174,7 @@ def table_add(request,app_name,model_name):
 
 
 #删除
+@permission.check_permission
 @login_required
 def table_delete(request,app_name,model_name,obj_id):
 
@@ -191,6 +194,7 @@ def table_delete(request,app_name,model_name,obj_id):
 
 
 #密码修改
+@permission.check_permission
 @login_required
 def password_reset(request,app_name,model_name,obj_id):
     '''密码修改'''

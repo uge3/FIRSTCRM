@@ -15,13 +15,9 @@ Including another URLconf
 """
 from django.conf.urls import url,include
 from django.contrib import admin
-from king_admin import views
+from sales import views
 urlpatterns = [
-    url(r'^$', views.app_index,),#king_admin 对应添加app的主页
-    url(r'^(\w+)/$', views.table_index, name='table_index'),#单个具体app页面
-    url(r'^(\w+)/(\w+)/$', views.table_data_list,name='table_list'),#表中记录列表
-    url(r'^(\w+)/(\w+)/add/$', views.table_add,name="obj_add"),#添加记录
-    url(r'^(\w+)/(\w+)/(\d+)/change/$', views.table_change,name="table_change"),#修改信息
-    url(r'^(\w+)/(\w+)/(\d+)/change/password/$', views.password_reset,name="password_reset"),#修改密码
-    url(r'^(\w+)/(\w+)/(\d+)/delete/$', views.table_delete,name="obj_delete"),#删除页面
+    url(r'^$', views.index,name='sales_index'),#销售首页
+    # url(r'^$', views.index,name='sal_index'),#销售首页
+
 ]

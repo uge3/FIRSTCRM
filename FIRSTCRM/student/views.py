@@ -4,23 +4,28 @@ from FIRSTCRM import settings
 import os,json,time
 from crm.permissions import permission
 # Create your views here.
-
+from  django.contrib.auth.decorators import login_required
 #学员首页
+@login_required
+@permission.check_permission#权限装饰器
 def index(request):
     return  render(request,'student/index.html')
 
-#我的班级首页
+#我的课程首页
+@login_required
 @permission.check_permission#权限装饰器
-def my_classes(request):
-    return  render(request,'student/my_classes.html',locals())
+def my_course(request):
+    return  render(request, 'student/my_course.html', locals())
 
 #学习记录列表
+@login_required
 @permission.check_permission#权限装饰器
 def studyrecords(request,enroll_obj_id):
     enroll_obj=models.Enrollment.objects.get(id=enroll_obj_id)
     return render(request,'student/studyrecords.html',locals())
 
 #作业详情
+@login_required
 @permission.check_permission#权限装饰器
 def homework_detail(request,enroll_obj_id,studyrecord_id):
     studyrecord_obj=models.StudyRecord.objects.get(id=studyrecord_id)#取学习记录 对象

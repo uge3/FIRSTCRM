@@ -3,7 +3,7 @@ from django.contrib.auth.models import User #帐户模块
 from django.contrib.auth.models import (BaseUserManager,AbstractBaseUser,PermissionsMixin)
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
-
+from django.contrib.auth.models import Permission
 # Create your models here.
 
 #客户表
@@ -100,7 +100,7 @@ class ClassList(models.Model):
     start_date=models.DateField(verbose_name='开班日期')#
     end_date=models.DateField(verbose_name='结业日期',blank=True,null=True)#
     def __str__(self):
-        return '%s %s %s %s'%(self.branch,self.course,self.get_class_type_display(),self.semester)#校区,课程,班级类型,学期
+        return '%s 校区: 课程：%s %s 第 %s 期'%(self.branch,self.course,self.get_class_type_display(),self.semester)#校区,课程,班级类型,学期
         #return '%s %s %s'%(self.branch,self.course,self.semester)#校区,课程,学期
 
     class Meta:
@@ -120,7 +120,7 @@ class CourseRecord(models.Model):
     outline= models.TextField(verbose_name='本节课程大纲')
     date=models.DateField(auto_now_add=True)#上课时间
     def __str__(self):
-        return '节数:%s'%self.day_num#班级,节数
+        return '班级:%s 第 %s 节'%(self.from_class,self.day_num)#班级,节数
 
 
     class Meta:
@@ -164,11 +164,13 @@ class Enrollment(models.Model):
 
     def __str__(self):
         #return '%s %s'%(self.customer,self.enrolled_class)#返回学员所报班级课程
-        return '%s %s'%(self.customer,self.enrolled_class)#返回学员所报班级课程
+        return '学员：%s '%(self.customer.name)#返回学员所报班级课程
 
     class Meta:
         unique_together=('customer','enrolled_class')#学员,,班级课程
+        verbose_name='报名表'
         verbose_name_plural='报名表'
+
 
 #缴费记录
 class Payment(models.Model):
@@ -244,18 +246,18 @@ class UserProfile(AbstractBaseUser,PermissionsMixin):
         return self.email
     def __str__(self):
         return self.name
-    # def has_perm(self,perm,obj=None):
-    #     "Does the user have a specific permission?"
-    #     # Simplest possible answer: Yes, always
-    #     #"""用户有一个特定的许可吗"""
-    #     #最简单的可能的答案:是的,总是
-    #     return True
-    #
-    # def has_module_perms(self, app_label):
-    #     "Does the user have permissions to view the app `app_label`?"
-    #     #'''用户有权限查看应用‘app_label’吗?'''
-    #     # Simplest possible answer: Yes, always
-    #     return True
+    def has_perm(self,perm,obj=None):
+        "Does the user have a specific permission?"
+        # Simplest possible answer: Yes, always
+        #"""用户有一个特定的许可吗"""
+        #最简单的可能的答案:是的,总是
+        return True
+
+    def has_module_perms(self, app_label):
+        "Does the user have permissions to view the app `app_label`?"
+        #'''用户有权限查看应用‘app_label’吗?'''
+        # Simplest possible answer: Yes, always
+        return True
 
     @property
     def is_staff(self):
@@ -267,13 +269,55 @@ class UserProfile(AbstractBaseUser,PermissionsMixin):
         return self.is_active
     class Meta:
          verbose_name_plural='帐号表'
-         permissions=(('can_chang',"权限测试"),
-                      ('can_access_my_course',"查看我的班级"),
+         permissions=(
+                      #kingadmin
+                      ('can_access_king_admin',"KINGADMIN 首页"),
+                      ('can_table_index',"KINGADMIN_单个app"),
+                      ('can_table_list',"KINGADMIN_app中 列表查看"),
+                      ('can_access_obj_add',"KINGADMIN_app中 添加"),
+                      ('can_access_obj_add_post',"KINGADMIN_app中 添加"),
+                      ('can_access_table_change',"KINGADMIN_修改"),
+                      ('can_access_table_change_post',"KINGADMIN_修改保存"),
+                      ('can_access_obj_delete',"KINGADMIN_删除"),
+                      ('can_access_obj_delete_post',"KINGADMIN_删除确认"),
+                      ('can_access_password_reset',"KINGADMIN_修改密码"),
+                      ('can_access_password_reset_post',"KINGADMIN_修改密码保存"),
+
+                      #销售
+                      ('can_sales_index',"销售首页"),
                       ('can_access_customer_list',"查看客户库"),
                       ('can_access_customer_detail',"客户信息详情"),
+                      ('can_access_customer_detail_post',"客户信息详情修改"),
+                      ('can_access_enrollment',"报名流程一"),
+                      ('can_access_enrollment_post',"报名流程一修改"),
+                      #讲师
+                      ('can_teacher_index',"讲师首页"),
+                      ('can_my_teacher_classes',"讲师查看我的班级"),
+                      ('can_teacher_classes_courserecord',"讲师班级上课列表"),
+                      ('can_teacher_classes_courserecord_post',"讲师班级上课列表批量创建"),
+                      ('can_teacher_classes_courserecord_change',"班级课节"),
+                      ('can_teacher_classes_courserecord_change_post',"班级课节保存"),
+                      ('can_teacher_classes_courserecord_add',"班级上课添加"),
+                      ('can_teacher_classes_courserecord_add_post',"班级上课添加保存"),
+                      ('can_teacher_classes_studyrecord',"班级学员上课记录"),
+                      ('can_teacher_classes_studyrecord_post',"班级学员上课记录保存"),
+                      ('can_teacher_classes_studyrecord_change',"讲师班级学员课节 学习记录"),
+                      ('can_teacher_classes_studyrecord_change_post',"讲师班级学员课节 学习记录保存"),
+                      #财务
+                      ('can_financial_index','财务首页'),
+                      ('can_financial_not_audit','财务待审核'),
+                      ('can_financial_contract_review','财务审核'),
+                      # ('can_financial_contract_review_post','财务审核通过'),
+                      ('can_financial_enrollment_rejection','财务驳回'),
+                      ('can_financial_payment','财务缴费'),
+                      ('can_financial_payment_post','财务缴费确认'),
+                      #学员
+                      ('can_student_index',"学员首页"),
+                      ('can_access_my_course',"学员查看我的课程"),
                       ('can_access_studyrecords',"学员学习记录"),
                       ('can_access_homework_detail',"学员作业详情"),
                       ('can_upload_homework',"学员作业提交"),
+
                       )
 
 
@@ -310,7 +354,6 @@ class Menu(models.Model):
         return self.name
     class Meta:
         verbose_name_plural='菜单表'
-
 
 #合同模版
 class ContractTemplate(models.Model):

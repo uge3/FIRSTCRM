@@ -18,9 +18,8 @@ from django.contrib import admin
 from student import views
 urlpatterns = [
     url(r'^$', views.index,name='stu_index'),#学员首页
-    url(r'^my_classes/$', views.my_classes,name='my_classes'),#班级
+    url(r'^my_course/$', views.my_course,name='my_course'),#班级
     url(r'^studyrecords/(\d+)/$', views.studyrecords,name='studyrecords'),#个人作业列表
     url(r'^homework_detail/(\d+)/(\d+)/$', views.homework_detail,name='homework_detail'),#作业详情
-
 
 ]

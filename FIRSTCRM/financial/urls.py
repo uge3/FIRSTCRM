@@ -15,13 +15,13 @@ Including another URLconf
 """
 from django.conf.urls import url,include
 from django.contrib import admin
-from king_admin import views
+from financial import views
 urlpatterns = [
-    url(r'^$', views.app_index,),#king_admin 对应添加app的主页
-    url(r'^(\w+)/$', views.table_index, name='table_index'),#单个具体app页面
-    url(r'^(\w+)/(\w+)/$', views.table_data_list,name='table_list'),#表中记录列表
-    url(r'^(\w+)/(\w+)/add/$', views.table_add,name="obj_add"),#添加记录
-    url(r'^(\w+)/(\w+)/(\d+)/change/$', views.table_change,name="table_change"),#修改信息
-    url(r'^(\w+)/(\w+)/(\d+)/change/password/$', views.password_reset,name="password_reset"),#修改密码
-    url(r'^(\w+)/(\w+)/(\d+)/delete/$', views.table_delete,name="obj_delete"),#删除页面
+    url(r'^$', views.index,name='financial_index'),#财务首页
+    url(r'^not_audit/$', views.not_audit),#财务未审核
+
+    url(r'^contract_review/(\d+)/$', views.contract_review, name="contract_review"),#报名流程三  审核
+    url(r'^enrollment_rejection/(\d+)/$', views.enrollment_rejection, name="enrollment_rejection"),#报名流程三 驳回
+    url(r'^payment/(\d+)/$', views.payment, name="payment"),#报名流程四    缴费
+
 ]

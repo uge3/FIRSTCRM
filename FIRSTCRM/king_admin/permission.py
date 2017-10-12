@@ -76,21 +76,22 @@ def perm_check(*args,**kwargs):
 
 
 
-    if all(match_results):
-        app_name, *per_name = match_key.split('_')
-        print("--->matched ",match_results,match_key)
-        print(app_name, *per_name)
-        perm_obj = '%s.%s' % (app_name,match_key)
-        print("perm str:",perm_obj)
-        if request.user.has_perm(perm_obj):
-            print('当前用户有此权限')
-            return True
-        else:
-            print('当前用户没有该权限')
-            return False
-
-    else:
-        print("未匹配到权限项，当前用户无权限")
+    # if all(match_results):
+    #     app_name, *per_name = match_key.split('_')
+    #     print("--->matched ",match_results,match_key)
+    #     print(app_name, *per_name)
+    #     perm_obj = '%s.%s' % (app_name,match_key)
+    #     print("perm str:",perm_obj)
+    #     if request.user.has_perm(perm_obj):
+    #         print('当前用户有此权限')
+    #         return True
+    #     else:
+    #         print('当前用户没有该权限')
+    #         return False
+    #
+    # else:
+    #     print("未匹配到权限项，当前用户无权限")
+    #     return False
 
 
 

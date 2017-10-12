@@ -20,19 +20,19 @@
 {#                        </tr>#}
                     </div>
 {#                    </thead>#}
-                    <div class="panel-body">
-                    <table class="table table-hover">
-                        <tbody>
-                        {% for model_name,admin_class in app_tables.items %}
-                            <tr>
-                                <th>
-                                    <a href="/king_admin/{% get_app_name admin_class.model %}/{% get_model_name admin_class.model %}/">{% get_model_verbose_name admin_class.model %}</a>
-                                </th>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                    </div>
+{#                    <div class="panel-body">#}
+{#                    <table class="table table-hover">#}
+{#                        <tbody>#}
+{#                        {% for model_name,admin_class in app_tables.items %}#}
+{#                            <tr>#}
+{#                                <th>#}
+{#                                    <a href="/king_admin/{% get_app_name admin_class.model %}/{% get_model_name admin_class.model %}/">{% get_model_verbose_name admin_class.model %}</a>#}
+{#                                </th>#}
+{#                            </tr>#}
+{#                        {% endfor %}#}
+{#                        </tbody>#}
+{#                    </table>#}
+{#                    </div>#}
                 </div>
             {% endfor %}
         </div>

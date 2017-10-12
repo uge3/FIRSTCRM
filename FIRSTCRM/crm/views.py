@@ -5,22 +5,22 @@ import string,random,os#用于生成随机字符串
 from django.core.cache import cache
 from FIRSTCRM import settings
 # Create your views here.
-
+from crm.permissions import permission
 #销售首页
+@permission.check_permission#权限装饰器
 def index(request):
     ''''''
     return render(request, 'sales/sales_index.html')
 
 #客户库
+@permission.check_permission#权限装饰器
 def customers(request):
     ''''''
     return render(request, 'sales/customers.html')
 
-#
-def my_class_list(request):
-    pass
 
-#报名填写
+#报名填写 销售
+@permission.check_permission#权限装饰器
 def enrollment(request,customer_id):
     ''''''
     msgs={}
@@ -51,7 +51,8 @@ def enrollment(request,customer_id):
                 enroll_obj=models.Enrollment.objects.get(customer_id=customer_obj.id,
                                                          enrolled_class_id=enroll_form.cleaned_data['enrolled_class'].id)
                 if enroll_obj.contract_agreed:#学员同意
-                    return redirect('/crm/contract_review/%s/'%enroll_obj.id)
+                    #return redirect('/crm/contract_review/%s/'%enroll_obj.id)#跳转到审核页面
+                    return render(request,'sales/contract_prompt.html',locals())#跳转提示页面
                 enroll_form.add_error('__all__','记录已经存在，不能重复创建！')
                 #random_str=''.join(random.sample(string.ascii_lowercase+string.digits,8))#生成8位随机字符串
                 cache.set(enroll_obj.id,random_str,61000)#加入过期时间
@@ -64,48 +65,6 @@ def enrollment(request,customer_id):
         enroll_form=forms.EnrollmentForm()#modelform表单
     return render(request,'sales/enrollment.html',locals())
 
-#缴费视图
-def payment(request,enroll_id):
-    enroll_obj=models.Enrollment.objects.get(id=enroll_id)#取对象
-    errors={}
-    if request.method=="POST":
-        payment_amount=request.POST.get('amount')#缴费金额
-        if payment_amount:
-            payment_amount=int(payment_amount)
-            if payment_amount<500:
-                errors['err']='缴费金额不得低于500元！'
-            else:
-                payment_obj=models.Payment.objects.create(
-                    customer=enroll_obj.customer,##客户表 学员
-                    course=enroll_obj.enrolled_class.course,#所报课程
-                    amount=payment_amount,#缴费金额
-                    consultant=enroll_obj.consultant#课程顾问
-                )
-                enroll_obj.contract_agreed=True#审核通过
-                enroll_obj.save()
-                enroll_obj.customer.status=0#修改为已报名
-                enroll_obj.customer.save()
-                return redirect('/king_admin/crm/customer/')#客户表
-        else:
-            errors['err']='金额不能为空！'
-    else:
-        payment_form=forms.PaymentForm()#生成表单
-    return render(request,'sales/payment.html',locals())
-
-#审核
-def contract_review(request,enroll_id):
-    enroll_obj=models.Enrollment.objects.get(id=enroll_id)#取对象
-    #payment_form=forms.PaymentForm()#生成表单
-    enroll_form=forms.EnrollmentForm(instance=enroll_obj)#报名表对象
-    customers_form=forms.CustomerForm(instance=enroll_obj.customer)#学员的信息
-    return render(request, 'sales/contract_review.html', locals())#
-
-#驳回
-def enrollment_rejection(request,enroll_id):
-    enroll_obj=models.Enrollment.objects.get(id=enroll_id)#报名表的对象
-    enroll_obj.contract_agreed=False#修改学员已经同意核同
-    enroll_obj.save()
-    return redirect('/crm/customer/%s/enrollment/'%enroll_obj.customer.id)#跳转到enrollment_rejection
 
 #学员合同签定
 def stu_registration(requset,enroll_id,random_str):
@@ -142,6 +101,59 @@ def stu_registration(requset,enroll_id,random_str):
     else:
         return HttpResponse('非法链接，请自重！')
 
-##学员合同签定 L
-def stu_registration_l(requset):
-    return render(requset,'')
+
+#提示页面
+
+def contract_prompt(requset,enroll_id):
+    enroll_obj=models.Enrollment.objects.get(id=enroll_id)#取对象
+    enroll_form=forms.EnrollmentForm(instance=enroll_obj)#报名表对象
+    customers_form=forms.CustomerForm(instance=enroll_obj.customer)#学员的信息
+    return render(requset,'sales/contract_prompt.html',locals())
+
+
+
+
+#审核合同
+def contract_review(request,enroll_id):
+    enroll_obj=models.Enrollment.objects.get(id=enroll_id)#取对象
+    #payment_form=forms.PaymentForm()#生成表单
+    enroll_form=forms.EnrollmentForm(instance=enroll_obj)#报名表对象
+    customers_form=forms.CustomerForm(instance=enroll_obj.customer)#学员的信息
+    return render(request, 'sales/contract_review.html', locals())#
+
+#驳回合同
+def enrollment_rejection(request,enroll_id):
+    enroll_obj=models.Enrollment.objects.get(id=enroll_id)#报名表的对象
+    enroll_obj.contract_agreed=False#修改学员已经同意核同
+    enroll_obj.save()
+    return redirect('/crm/customer/%s/enrollment/'%enroll_obj.customer.id)#跳转到enrollment_rejection
+
+#缴费视图
+def payment(request,enroll_id):
+    enroll_obj=models.Enrollment.objects.get(id=enroll_id)#取对象
+    errors={}
+    if request.method=="POST":
+        payment_amount=request.POST.get('amount')#缴费金额
+        if payment_amount:
+            payment_amount=int(payment_amount)
+            if payment_amount<500:
+                errors['err']='缴费金额不得低于500元！'
+            else:
+                payment_obj=models.Payment.objects.create(
+                    customer=enroll_obj.customer,##客户表 学员
+                    course=enroll_obj.enrolled_class.course,#所报课程
+                    amount=payment_amount,#缴费金额
+                    consultant=enroll_obj.consultant#课程顾问
+                )
+                enroll_obj.contract_agreed=True#审核通过
+                enroll_obj.save()
+                enroll_obj.customer.status=0#修改为已报名
+                enroll_obj.customer.save()
+                return redirect('/king_admin/crm/customer/')#客户表
+        else:
+            errors['err']='金额不能为空！'
+    else:
+        payment_form=forms.PaymentForm()#生成表单
+    return render(request,'sales/payment.html',locals())
+
+
