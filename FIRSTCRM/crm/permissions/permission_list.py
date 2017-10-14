@@ -114,6 +114,55 @@ perm_dic={
         'args':[],
         'relist':['/king_admin/crm/customer/']#正则
     },
+    'crm.can_access_customer_add':{# 销售 客户添加
+        'url_type':2,
+        'url':'obj_add',#url name
+        'method':'GET',#只能用GET
+        'args':[],
+        'relist':['/king_admin/crm/customer/']#正则
+    },
+    'crm.can_access_customer_add_post':{# 销售 客户添加保存
+        'url_type':2,
+        'url':'obj_add',#url name
+        'method':'POST',#只能用GET
+        'args':[],
+        'relist':['/king_admin/crm/customer/']#正则
+    },
+
+    'crm.can_access_customerfollowup_list':{# 销售 客户信息跟记录
+        'url_type':1,
+        'url':'/king_admin/crm/customerfollowup/',#url name
+        'method':'GET',#只能用GET
+        'args':[],
+    },
+    'crm.can_access_customerfollowup_detail':{# 销售 客户信息跟进记录修改
+        'url_type':2,
+        'url':'table_change',#url name
+        'method':'GET',#只能用GET
+        'args':[],
+        'relist':['/king_admin/crm/customerfollowup/']#正则
+    },
+    'crm.can_access_customerfollowup_detail_post':{# 销售 客户信息跟进记录修改 保存
+        'url_type':2,
+        'url':'table_change',#url name
+        'method':'POST',#只能用GET
+        'args':[],
+        'relist':['/king_admin/crm/customerfollowup/']#正则
+    },
+    'crm.can_teacher_classes_customerfollowup_add':{#销售 客户信息跟进记录添加
+        'url_type':2,
+        'url':'obj_add',#url name
+        'method':'GET',#只能用GET
+        'args':[],
+        'relist':['/king_admin/crm/customerfollowup/']#正则
+    },
+    'crm.can_teacher_classes_customerfollowup_add_post':{#销售 客户信息跟进记录添加post
+        'url_type':2,
+        'url':'obj_add',#url name
+        'method':'POST',#POST
+        'args':[],
+        'relist':['/king_admin/crm/customerfollowup/']#正则
+    },
 
      'crm.can_access_enrollment':{#报名流程一
             'url_type':0,

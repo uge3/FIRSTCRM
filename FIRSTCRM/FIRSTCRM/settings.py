@@ -39,7 +39,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crm',#客户关系
     'student',#学员app
-    'king_admin'  #admin 模块,app
+    'king_admin',  #admin 模块,app
+    'financial',
+    'sales',
+    'teacher'
+
 
 ]
 
@@ -54,12 +58,15 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'FIRSTCRM.urls'
+#ROOT_URLCONF = 'crm.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [os.path.join(BASE_DIR, 'templates'),
-                 os.path.join(BASE_DIR, 'king_admin/templates'), ]
+                 os.path.join(BASE_DIR, 'king_admin/templates'),
+                 os.path.join(BASE_DIR,'enrolled_data')
+                 ]
         ,
         'APP_DIRS': True,
         'OPTIONS': {
@@ -136,10 +143,21 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'statics'),#静态目录
+    # os.path.join(BASE_DIR, 'enrolled_data'),#静态目录
 )
+# STATIC_ROOT=os.path.join(BASE_DIR,'static')
+CACHES = {
+            'default': {
+                'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+                'LOCATION': os.path.join(BASE_DIR,'cache')
+                }
+        }
 AUTH_USER_MODEL = 'crm.UserProfile'#使用自定的admin 表单
 
 LOGIN_URL = '/accounts/login/'# login_url 配置
 
-ENROLLED_DATA='%s/enrolled_data/'%BASE_DIR#证件上传
+ENROLLED_DATA='%s/statics/enrolled_data'%BASE_DIR#证件上传
 HOMEWORK_DATA='%s/homeworks'%BASE_DIR
+
+SESSION_COOKIE_AGE = 60 * 60 * 24
+SESSION_SAVE_EVERY_REQUEST = True

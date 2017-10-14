@@ -1,7 +1,11 @@
-from django.shortcuts import render,HttpResponse,redirect
-from crm import forms,models
-# Create your views here.
+from django.shortcuts import render, redirect
 
+from FIRSTCRM import settings
+from crm import models
+
+from crm.forms import forms
+# Create your views here.
+import os
 from crm.permissions import permission
 from  django.contrib.auth.decorators import login_required
 
@@ -26,14 +30,18 @@ def not_audit(request):
 
 #审核合同
 @login_required
-@permission.check_permission#权限装饰器
+# @permission.check_permission#权限装饰器
 def contract_review(request,enroll_id):
     enroll_obj=models.Enrollment.objects.get(id=enroll_id)#取对象
     #payment_form=forms.PaymentForm()#生成表单
-    enroll_form=forms.EnrollmentForm(instance=enroll_obj)#报名表对象
-    customers_form=forms.CustomerForm(instance=enroll_obj.customer)#学员的信息
-
-    return render(request, 'sales/contract_review.html', locals())#
+    enroll_form= forms.EnrollmentForm(instance=enroll_obj)#报名表对象
+    customers_form= forms.CustomerForm(instance=enroll_obj.customer)#学员的信息
+    enrolled_path='%s/%s/'%(settings.ENROLLED_DATA,enroll_id)#证件上传路径
+    if os.path.exists(enrolled_path):#判断目录是否存在
+        file_list=os.listdir(enrolled_path)#取目录 下的文件
+        imgs_one=file_list[0]
+        imgs_two=file_list[1]
+    return render(request, 'financial/contract_review.html', locals())#
 
 #驳回合同
 @login_required
@@ -73,5 +81,5 @@ def payment(request,enroll_id):
         else:
             errors['err']='金额不能为空！'
     else:
-        payment_form=forms.PaymentForm()#生成表单
-    return render(request,'sales/payment.html',locals())
+        payment_form= forms.PaymentForm()#生成表单
+    return render(request, 'financial/payment.html', locals())

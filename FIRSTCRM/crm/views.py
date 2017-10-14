@@ -1,11 +1,117 @@
-from django.shortcuts import render,HttpResponse,redirect
-from crm import forms,models
-from django.db import IntegrityError
-import string,random,os#用于生成随机字符串
+import os
+import random
+import string
+
 from django.core.cache import cache
+from django.db import IntegrityError
+from django.shortcuts import render,HttpResponse,redirect
+
 from FIRSTCRM import settings
+from crm import models
+from crm.forms import forms
+
+
+
 # Create your views here.
 from crm.permissions import permission
+from king_admin.utils.permissions import permission as king_admin_permission
+import json
+from io import BytesIO
+from king_admin.utils.check_code import create_validate_code
+from crm.forms.account import RegisterForm
+from django.core.exceptions import ValidationError
+from king_admin import base_admin
+
+def jsonp(request):
+    func = request.GET.get('callback')
+    content = '%s(100000)' %(func,)
+    return HttpResponse(content)
+
+#json 对错误信息对象进行处理
+class JsonCustomEncoder(json.JSONEncoder):
+    def default(self,field):
+        if isinstance(field,ValidationError):#如果是错误信息进行处理
+            return {'code':field.code ,'messages':field.messages}
+        else:
+            return json.JSONEncoder.default(self,field)
+
+#验证码函数
+def check_code(request):
+    """
+    验证码
+    :param request:
+    :return:
+    """
+    stream = BytesIO()#创建内存空间
+    img, code = create_validate_code()#调用验证码图片生成函数 返回图片 和 对应的验证码
+    img.save(stream, 'PNG')#保存为PNG格式
+    request.session['CheckCode'] = code#保存在session中
+    return HttpResponse(stream.getvalue())
+
+def registers(request):
+    user_form= forms.UserProfile()#modelform表单
+    if request.method=="POST":
+        enroll_form= forms.UserProfile(request.POST)#获取数据
+        if enroll_form.is_valid():#表单验证
+            pass
+
+    return render(request,'registers.html',locals())
+
+#注册2 ajax 验证
+def register(request):
+    """
+    注册
+    :param request:
+    :return:
+    """
+    if request.method=='GET':
+        obj=RegisterForm(request=request, data=request.POST)
+        return render(request, 'register.html',{'obj':obj})
+
+    elif request.method=='POST':
+        #返回的字符串 字典
+        ret={'status':False,'error':None,'data':None}
+        #进行验证 调用RegisterForm
+        obj=RegisterForm(request=request, data=request.POST)
+        if obj.is_valid():
+            name = obj.cleaned_data.get('name')#获取用户名
+            password = obj.cleaned_data.get('password')
+            email= obj.cleaned_data.get('email')
+            #print(username,password,email)
+            #数据库添加数据
+            models.UserProfile.objects.create(name=name,password=password,email=email,)
+            #获取用户数据
+            user_info= models.UserProfile.objects. \
+                filter(name=name, password=password). \
+                values('id', 'name', 'email',).first()
+            #nid=user_info.id
+            print(user_info,type(user_info),'..........')
+            admin_obj = base_admin.site.registered_sites['crm']['userprofile']#表类
+            user_obj=admin_obj.model.objects.get(id=user_info['id'])#类表的对象
+            user_obj.set_password(password)#加密
+            user_obj.save()
+            request.session['user_info'] = user_info
+            #print(user_info.id)
+            ret['status']=True
+            ret['data']=obj.cleaned_data
+            # print(obj.cleaned_data)
+            # print(ret)
+            ret=json.dumps(ret)#转为json格式
+            #return HttpResponse(ret)
+        else:
+            #加入错误信息
+            #print(obj.errors)
+            ret['error']=obj.errors.as_data()
+            #提示为False
+            #ret['status']=False
+            #对错误信息对象进行转化处理 前端不用二次序列化
+            ret=json.dumps(ret,cls=JsonCustomEncoder)
+            #print(ret)
+            #print(ret)
+        return HttpResponse(ret)
+
+
+
 #销售首页
 @permission.check_permission#权限装饰器
 def index(request):
@@ -14,6 +120,7 @@ def index(request):
 
 #客户库
 @permission.check_permission#权限装饰器
+@king_admin_permission.check_permission#kingadmin权限装饰器
 def customers(request):
     ''''''
     return render(request, 'sales/customers.html')
@@ -30,7 +137,7 @@ def enrollment(request,customer_id):
     #print('customer_obj',customer_obj.enrollment_set.all())
     #print('enroll_obj',enroll_obj)
     if request.method=="POST":
-        enroll_form=forms.EnrollmentForm(request.POST)#获取数据
+        enroll_form= forms.EnrollmentForm(request.POST)#获取数据
         if enroll_form.is_valid():#表单验证
             msg = '''请将此链接发给客户进行填写：
                     http://127.0.0.1:8000/crm/customer/registration/{enroll_obj_id}/{random_str}/
@@ -62,7 +169,7 @@ def enrollment(request,customer_id):
             models.Enrollment.objects.filter(id=enroll_obj.id).update(contract_url=url_str)#写入表内 更新
             enroll_obj=models.Enrollment.objects.get(id=enroll_obj.id)#取报名的对象
     else:
-        enroll_form=forms.EnrollmentForm()#modelform表单
+        enroll_form= forms.EnrollmentForm()#modelform表单
     return render(request,'sales/enrollment.html',locals())
 
 
@@ -82,7 +189,7 @@ def stu_registration(requset,enroll_id,random_str):
                         for chunk in file_obj.chunks():#写入文件
                             f.write(chunk)
                 return HttpResponse('上传完成！')
-            customer_form=forms.CustomerForm(requset.POST,instance=enroll_obj.customer)#生成表单
+            customer_form= forms.CustomerForm(requset.POST, instance=enroll_obj.customer)#生成表单
 
             if customer_form.is_valid():#表单验证通过
                 customer_form.save()
@@ -95,7 +202,7 @@ def stu_registration(requset,enroll_id,random_str):
                 status=1
             else:
                 status=0
-            customer_form=forms.CustomerForm(instance=enroll_obj.customer)#生成表单
+            customer_form= forms.CustomerForm(instance=enroll_obj.customer)#生成表单
 
         return render(requset,'sales/stu_registration.html',locals())
     else:
@@ -106,8 +213,8 @@ def stu_registration(requset,enroll_id,random_str):
 
 def contract_prompt(requset,enroll_id):
     enroll_obj=models.Enrollment.objects.get(id=enroll_id)#取对象
-    enroll_form=forms.EnrollmentForm(instance=enroll_obj)#报名表对象
-    customers_form=forms.CustomerForm(instance=enroll_obj.customer)#学员的信息
+    enroll_form= forms.EnrollmentForm(instance=enroll_obj)#报名表对象
+    customers_form= forms.CustomerForm(instance=enroll_obj.customer)#学员的信息
     return render(requset,'sales/contract_prompt.html',locals())
 
 
@@ -117,9 +224,9 @@ def contract_prompt(requset,enroll_id):
 def contract_review(request,enroll_id):
     enroll_obj=models.Enrollment.objects.get(id=enroll_id)#取对象
     #payment_form=forms.PaymentForm()#生成表单
-    enroll_form=forms.EnrollmentForm(instance=enroll_obj)#报名表对象
-    customers_form=forms.CustomerForm(instance=enroll_obj.customer)#学员的信息
-    return render(request, 'sales/contract_review.html', locals())#
+    enroll_form= forms.EnrollmentForm(instance=enroll_obj)#报名表对象
+    customers_form= forms.CustomerForm(instance=enroll_obj.customer)#学员的信息
+    return render(request, 'sales/../templates/financial/contract_review.html', locals())#
 
 #驳回合同
 def enrollment_rejection(request,enroll_id):
@@ -153,7 +260,7 @@ def payment(request,enroll_id):
         else:
             errors['err']='金额不能为空！'
     else:
-        payment_form=forms.PaymentForm()#生成表单
-    return render(request,'sales/payment.html',locals())
+        payment_form= forms.PaymentForm()#生成表单
+    return render(request, 'sales/../templates/financial/payment.html', locals())
 
 

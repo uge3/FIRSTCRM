@@ -3,14 +3,11 @@ from django import forms
 from django.forms import ModelForm,ValidationError
 from django.utils.translation import ugettext as _ #国际化
 
-
-
 #
 # class CustomerModelForm(forms.ModelForm):
 #     class Meta:
 #         model = models.Customer
 #         fields = "__all__"
-
 #动态生成modelform
 def CreateModelForm(request,admin_obj):#传入前端提交的表单
     class Meta:
@@ -54,8 +51,8 @@ def CreateModelForm(request,admin_obj):#传入前端提交的表单
         print(self)
 
     def default_clean(self):
-        print("default clean:",type(self.instance))
-        print("default clean:",self.instance)
+        #print("default clean:",type(self.instance))
+        #print("default clean:",self.instance)
         error_list=[]
         if admin_obj.readonly_table:
             raise ValidationError(#添加错误信息
@@ -64,7 +61,7 @@ def CreateModelForm(request,admin_obj):#传入前端提交的表单
                                 )
         if self.instance.id:#表示为修改表单
             for field in admin_obj.readonly_fields:#如果是不可修改的字段
-                print("readonly",field,self.instance)
+                #print("readonly",field,self.instance)
                 #field_val_from_db = getattr(self.instance,field)#取数据库中的值
                 field_val_from_db = getattr(self.instance,field)#取数据库中的值
                 field_val = self.cleaned_data.get(field)#前端传来的值
@@ -88,7 +85,7 @@ def CreateModelForm(request,admin_obj):#传入前端提交的表单
                     continue
 
                 #field_val = self.cleaned_data.get(field)#前端传来的值
-                print('field_val',type(field_val))
+                #print('field_val',type(field_val))
                 if field_val_from_db != field_val:
                     print("field not change ")#不一致
                     error_list.append(ValidationError(#添加错误信息
@@ -100,7 +97,7 @@ def CreateModelForm(request,admin_obj):#传入前端提交的表单
                 # else: # 被篡改了
                 #     self.add_error(field,' "%s" is a readonly field ,value should be "%s" '% (field, field_val_from_db))
 
-        print("cleaned data:",self.cleaned_data,)#要验证的表单
+        #print("cleaned data:",self.cleaned_data,)#要验证的表单
         for field in self.cleaned_data:#单独字段
             if hasattr(admin_obj,'clean_%s'%field):#是否有该字段的单独验证
                 field_clean_func=getattr(admin_obj,'clean_%s'%field)#获取对应的函数

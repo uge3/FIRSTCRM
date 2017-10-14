@@ -24,16 +24,19 @@ def perm_check(*args,**kwargs):
             if url_type==1:#如果是静态URL
                 if per_url==request.path:#匹配上URL
                     url_match=True
-            elif url_type==2:
-                resolve_url_obj = resolve(request.path)#解析URL
-                current_url_name = resolve_url_obj.url_name  # 当前url的url_name
-                per_re=val.get('relist')#取正则
-                res=re.match('^%s'%per_re[0],request.path)#正则匹配
-                if res and current_url_name==per_url:#匹配上URL 别名
-                    url_match=True
+            # elif url_type==2:
+            #     resolve_url_obj = resolve(request.path)#解析URL
+            #     current_url_name = resolve_url_obj.url_name  # 当前url的url_name
+            #     per_re=val.get('relist')#取正则
+            #     res=re.match('^%s'%per_re[0],request.path)#正则匹配
             else:
                 resolve_url_obj = resolve(request.path)#解析URL #绝对URL转成动态的URLname
                 current_url_name = resolve_url_obj.url_name  # 当前url的url_name
+                if url_type==2:
+                    per_re=val.get('relist')#取正则
+                    res=re.match('^%s'%per_re[0],request.path)#正则匹配
+                    if res and current_url_name==per_url:#匹配上URL 别名
+                        url_match=True
                 if current_url_name==per_url:#匹配上URL 别名
                     url_match=True
 
@@ -51,8 +54,7 @@ def perm_check(*args,**kwargs):
                         if request.user.has_perm(key):#判断用户是否该权限
                             print(key,'key--------------判断用户是有该权限－－－－－－－－－－－－－')
                             return True
-                        else:
-                            return False
+
 
     else:
         #print("未匹配到权限项，当前用户无权限")

@@ -21,6 +21,7 @@ urlpatterns = [
     url(r'^not_audit/$', views.not_audit),#财务未审核
 
     url(r'^contract_review/(\d+)/$', views.contract_review, name="contract_review"),#报名流程三  审核
+    # url(r'^enrolled_data/(\d+)/$', views.enrolled_data, name="enrolled_data"),#证件
     url(r'^enrollment_rejection/(\d+)/$', views.enrollment_rejection, name="enrollment_rejection"),#报名流程三 驳回
     url(r'^payment/(\d+)/$', views.payment, name="payment"),#报名流程四    缴费
 

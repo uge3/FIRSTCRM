@@ -21,7 +21,7 @@ from crm.permissions import permission
 
 from king_admin import app_config
 from king_admin import base_admin
-
+from king_admin.utils.permissions import permission as king_admin_permission
 
 #模版函数
 
@@ -81,6 +81,7 @@ def get_queryset_search_result(request,queryset,admin_obj):
 #详细列表
 @login_required
 @permission.check_permission
+#@king_admin_permission.check_permission#kingadmin权限装饰器
 def table_data_list(request,app_name,model_name):
     admin_obj = base_admin.site.registered_sites[app_name][model_name]#获取到表名的数据
     if request.method == "POST":#批量操作
@@ -206,12 +207,12 @@ def password_reset(request,app_name,model_name,obj_id):
         _password1=request.POST.get('password1')
         _password2=request.POST.get('password2')
         if _password1==_password2:
-            if len(_password1)>5:
+            if len(_password1)>8:
                 obj.set_password(_password1)
                 obj.save()
                 return redirect(request.path.rstrip('password/'))
             else:
-                errors['password_too_short']='must not less than 6 letters'
+                errors['password_too_short']='must not less than 8 letters'
         else:
             errors['invalid_password']='passwords are not the same'#密码不一致
 

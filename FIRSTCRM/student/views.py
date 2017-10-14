@@ -5,6 +5,7 @@ import os,json,time
 from crm.permissions import permission
 # Create your views here.
 from  django.contrib.auth.decorators import login_required
+import os,sys
 #学员首页
 @login_required
 @permission.check_permission#权限装饰器

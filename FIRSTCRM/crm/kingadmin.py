@@ -88,7 +88,10 @@ class CustomerAdmin(BaseAdmin):
     #     objs=queryset
     #     return render(request,"kingadmin/table_del.html", locals())
 
-
+#跟进记录表
+class CustomerFollowUpAdmin(BaseAdmin):
+    list_display = ('id','customer','content','consultant','intention','date')
+    list_filter = ('intention','consultant','date')
 
 #上课记录 讲师
 class CourseRecordAdmin(BaseAdmin):
@@ -130,6 +133,36 @@ class StudyRecordAdmin(BaseAdmin):
     list_filter =['course_record','attendance','score']#排序
     list_editable = ['score','attendance']#可编辑
 
+    def attendance(self,request,queryset):
+        for stud in queryset:
+            models.StudyRecord.objects.filter(id=stud.id).update(attendance=0)
+        return redirect("/king_admin/crm/studyrecord/?course_record=%s"%queryset[0].course_record.id)#学习记录
+    def late(self,request,queryset):
+        for stud in queryset:
+            models.StudyRecord.objects.filter(id=stud.id).update(attendance=1)
+        return redirect("/king_admin/crm/studyrecord/?course_record=%s"%queryset[0].course_record.id)#学习记录
+    def absenteeism(self,request,queryset):
+        for stud in queryset:
+            models.StudyRecord.objects.filter(id=stud.id).update(attendance=2)
+        return redirect("/king_admin/crm/studyrecord/?course_record=%s"%queryset[0].course_record.id)#学习记录
+    def leave_early(self,request,queryset):
+        #print(queryset,'--=-=-=-=--=-==')
+        #new_obj_list=[]#用于批量创建  事务
+        for stud in queryset:
+            models.StudyRecord.objects.filter(id=stud.id).update(attendance=3)
+            # new_obj_list.append(models.StudyRecord(
+            #     id=stud.id,#对应学员
+            #     attendance=3,#签到状态,默认签到,
+            # ))
+        #models.StudyRecord.objects.  update(new_obj_list)#批量更新
+        return redirect("/king_admin/crm/studyrecord/?course_record=%s"%queryset[0].course_record.id)#学习记录
+
+    actions = ['attendance','late','absenteeism','leave_early']
+    attendance.short_description = "已签到"#显示别名
+    late.short_description = "迟到"#显示别名
+    absenteeism.short_description = "缺勤"#显示别名
+    leave_early.short_description = "早退"#显示别名
+
 #课程表
 class CourseAdmin(BaseAdmin):
     list_display = ('name','outling','price')
@@ -158,5 +191,6 @@ site.register(models.ClassList,ClassListAdmin)
 site.register(models.Course,CourseAdmin)
 site.register(models.UserProfile,UserProfileAdmin)
 site.register(models.Enrollment,EnrollmentAdmin)
+site.register(models.CustomerFollowUp,CustomerFollowUpAdmin)
 
 

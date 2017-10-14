@@ -18,6 +18,9 @@ from django.contrib import admin
 from crm import views
 urlpatterns = [
     # url(r'^$', views.index,name='sales_index'),#销售首页
+    url(r'^registers.html$', views.registers),#注册
+    url(r'^register.html$', views.register),#注册
+    url(r'^check_code.html$', views.check_code),# 验证码 校对
     url(r'^customers/$', views.customers, name="customers"),#客户库
     url(r'^customer/(\d+)/enrollment/$', views.enrollment, name="enrollment"),#报名流程一 下一步
     url(r'^contract_prompt/$', views.contract_prompt, name="contract_prompt"),#报名提示

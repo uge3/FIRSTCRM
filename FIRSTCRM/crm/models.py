@@ -120,7 +120,7 @@ class CourseRecord(models.Model):
     outline= models.TextField(verbose_name='本节课程大纲')
     date=models.DateField(auto_now_add=True)#上课时间
     def __str__(self):
-        return '班级:%s 第 %s 节'%(self.from_class,self.day_num)#班级,节数
+        return '班级:%s第 %s 节'%(self.from_class,self.day_num)#班级,节数
 
 
     class Meta:
@@ -144,7 +144,7 @@ class StudyRecord(models.Model):
         #print(self,'<----student')
         # return '%s %s %s'%(self.student,self.course_record,self.score)#学员,课程,成绩,,
         #return '%s %s %s'%(self.student.consultant.name,self.course_record.from_class,self.score)#学员,课程,成绩,,
-        return '%s %s %s'%(self.student,self.course_record.from_class,self.score)#学员,课程,成绩,,
+        return '%s %s %s'%(self.student.customer.name,self.course_record.from_class,self.score)#学员,课程,成绩,,
 
     class Meta:
         unique_together=('student','course_record')#
@@ -228,7 +228,7 @@ class UserProfile(AbstractBaseUser,PermissionsMixin):
         max_length=255,
         unique=True#唯一
     )
-    name=models.CharField(max_length=32)
+    name=models.CharField(max_length=32,verbose_name='用户名')
     password = models.CharField(_('password'), max_length=128,help_text=mark_safe('''<a href='password/'>修改密码</a>'''))
     is_active = models.BooleanField(default=True)#权限
     is_admin = models.BooleanField(default=False)
@@ -246,18 +246,18 @@ class UserProfile(AbstractBaseUser,PermissionsMixin):
         return self.email
     def __str__(self):
         return self.name
-    def has_perm(self,perm,obj=None):
-        "Does the user have a specific permission?"
-        # Simplest possible answer: Yes, always
-        #"""用户有一个特定的许可吗"""
-        #最简单的可能的答案:是的,总是
-        return True
-
-    def has_module_perms(self, app_label):
-        "Does the user have permissions to view the app `app_label`?"
-        #'''用户有权限查看应用‘app_label’吗?'''
-        # Simplest possible answer: Yes, always
-        return True
+    # def has_perm(self,perm,obj=None):
+    #     "Does the user have a specific permission?"
+    #     # Simplest possible answer: Yes, always
+    #     #"""用户有一个特定的许可吗"""
+    #     #最简单的可能的答案:是的,总是
+    #     return True
+    # #
+    # def has_module_perms(self, app_label):
+    #     "Does the user have permissions to view the app `app_label`?"
+    #     #'''用户有权限查看应用‘app_label’吗?'''
+    #     # Simplest possible answer: Yes, always
+    #     return True
 
     @property
     def is_staff(self):
@@ -288,6 +288,15 @@ class UserProfile(AbstractBaseUser,PermissionsMixin):
                       ('can_access_customer_list',"查看客户库"),
                       ('can_access_customer_detail',"客户信息详情"),
                       ('can_access_customer_detail_post',"客户信息详情修改"),
+                      ('can_access_customer_add',"客户信息添加"),
+                      ('can_access_customer_add_post',"客户信息添加保存"),
+                      ('can_access_customerfollowup_list',"销售 客户信息跟记录"),
+                      ('can_access_customerfollowup_detail',"销售 客户信息跟进详情修改"),
+                      ('can_access_customerfollowup_detail_post',"销售 客户信息跟进详情修改保存"),
+                      ('can_teacher_classes_customerfollowup_add',"销售 客户信息跟进添加"),
+                      ('can_teacher_classes_customerfollowup_add_post',"销售 客户信息跟进添加保存"),
+
+
                       ('can_access_enrollment',"报名流程一"),
                       ('can_access_enrollment_post',"报名流程一修改"),
                       #讲师

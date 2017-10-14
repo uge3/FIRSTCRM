@@ -19,10 +19,13 @@ from FIRSTCRM import view
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^crm/', include('crm.urls')),#客户库
     url(r'^$', view.index),#进入主页
+    # url(r'^registers/$', view.registers),#注册
+    # url(r'^register/$', view.register),#注册
+    # url(r'^check_code.html$', view.check_code),# 验证码 校对
     url(r'^accounts/login/', view.acc_login),#全局login
     url(r'^account/logout/', view.acc_logout,name='acc_logout'),#全局logout django logout 默认跳转到accounts/login
+    url(r'^crm/', include('crm.urls')),#客户库
     url(r'^student/', include('student.urls')),#学员
     url(r'^teacher/', include('teacher.urls')),#讲师
     url(r'^sales/', include('sales.urls')),#销售
