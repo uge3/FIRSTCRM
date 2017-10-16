@@ -22,6 +22,8 @@ from crm.forms.account import RegisterForm
 from django.core.exceptions import ValidationError
 from king_admin import base_admin
 
+form django.contrib.auth.hashers import make_password,check_password
+
 def jsonp(request):
     func = request.GET.get('callback')
     content = '%s(100000)' %(func,)
@@ -54,7 +56,7 @@ def registers(request):
         enroll_form= forms.UserProfile(request.POST)#获取数据
         if enroll_form.is_valid():#表单验证
             pass
-
+    
     return render(request,'registers.html',locals())
 
 #注册2 ajax 验证
@@ -67,7 +69,7 @@ def register(request):
     if request.method=='GET':
         obj=RegisterForm(request=request, data=request.POST)
         return render(request, 'register.html',{'obj':obj})
-
+    
     elif request.method=='POST':
         #返回的字符串 字典
         ret={'status':False,'error':None,'data':None}
@@ -78,6 +80,7 @@ def register(request):
             password = obj.cleaned_data.get('password')
             email= obj.cleaned_data.get('email')
             #print(username,password,email)
+            password=make_password(password,)#密码加密
             #数据库添加数据
             models.UserProfile.objects.create(name=name,password=password,email=email,)
             #获取用户数据
@@ -86,10 +89,10 @@ def register(request):
                 values('id', 'name', 'email',).first()
             #nid=user_info.id
             print(user_info,type(user_info),'..........')
-            admin_obj = base_admin.site.registered_sites['crm']['userprofile']#表类
-            user_obj=admin_obj.model.objects.get(id=user_info['id'])#类表的对象
-            user_obj.set_password(password)#加密
-            user_obj.save()
+            #admin_obj = base_admin.site.registered_sites['crm']['userprofile']#表类
+            #user_obj=admin_obj.model.objects.get(id=user_info['id'])#类表的对象
+            #user_obj.set_password(password)#加密
+            #user_obj.save()
             request.session['user_info'] = user_info
             #print(user_info.id)
             ret['status']=True
@@ -190,7 +193,7 @@ def stu_registration(requset,enroll_id,random_str):
                             f.write(chunk)
                 return HttpResponse('上传完成！')
             customer_form= forms.CustomerForm(requset.POST, instance=enroll_obj.customer)#生成表单
-
+    
             if customer_form.is_valid():#表单验证通过
                 customer_form.save()
                 enroll_obj.contract_agreed=True#同意协议
@@ -203,7 +206,7 @@ def stu_registration(requset,enroll_id,random_str):
             else:
                 status=0
             customer_form= forms.CustomerForm(instance=enroll_obj.customer)#生成表单
-
+    
         return render(requset,'sales/stu_registration.html',locals())
     else:
         return HttpResponse('非法链接，请自重！')
