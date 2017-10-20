@@ -164,7 +164,7 @@ class Enrollment(models.Model):
 
     def __str__(self):
         #return '%s %s'%(self.customer,self.enrolled_class)#返回学员所报班级课程
-        return '学员：%s '%(self.customer.name)#返回学员所报班级课程
+        return '%s  |学员：%s  '%(self.enrolled_class,self.customer.name)#返回学员所报班级课程
 
     class Meta:
         unique_together=('customer','enrolled_class')#学员,,班级课程

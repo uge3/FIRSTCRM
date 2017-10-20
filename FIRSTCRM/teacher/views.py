@@ -13,11 +13,14 @@ import FIRSTCRM.settings
 from king_admin.utils.pagination import Page as Pagination
 
 #讲师首页
-@king_admin_permission.check_permission#kingadmin权限装饰器
+#@king_admin_permission.check_permission#kingadmin权限装饰器
 @permission.check_permission#权限装饰器
 @login_required
 def index(request):
-    return  render(request, 'teacher/index_teacher.html')
+    user_id=request.user.id
+    userinfo=models.UserProfile.objects.get(id=user_id)#帐号对象
+    roles_list=userinfo.roles.all()#角色列表
+    return  render(request, 'teacher/index_teacher.html',locals())
 
 #讲师所教班级
 @login_required

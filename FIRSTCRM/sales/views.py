@@ -11,4 +11,7 @@ from  django.contrib.auth.decorators import login_required
 @login_required
 @permission.check_permission#权限装饰器
 def index(request):
-    return  render(request,'sales/sales_index.html')
+    user_id=request.user.id
+    userinfo=models.UserProfile.objects.get(id=user_id)#帐号对象
+    roles_list=userinfo.roles.all()#角色列表
+    return  render(request,'sales/sales_index.html',locals())

@@ -7,42 +7,46 @@
 {% block page_content %}
 
     <div class="panel-default">
-    <div class="row" style="margin-bottom: 20px" >
-        <ol class="breadcrumb">
-          <li><a href="/student/">Home</a></li>
-          <li><a href="/student/my_course/">我的课程</a></li>
-          <li><a href="/student/studyrecords/{{ enroll_obj.id }}/">{{ enroll_obj.enrolled_class }}</a></li>
-          <li><a href="#">第:{{ studyrecord_obj.course_record.day_num }}节</a></li>
-        </ol>
+        <div class="row" style="margin-bottom: 20px">
+            <ol class="breadcrumb">
+                <li><a href="/student/">Home</a></li>
+                <li><a href="/student/my_course/">我的课程</a></li>
+                <li><a href="/student/studyrecords/{{ enroll_obj.id }}/">{{ enroll_obj.enrolled_class }}</a></li>
+                <li><a href="#">第:{{ studyrecord_obj.course_record.day_num }}节</a></li>
+            </ol>
         </div>
-{#    <div class="panel-heading">班级:{{ studyrecord_obj.course_record.from_class }} | 第:{{ studyrecord_obj.course_record.day_num }}节</div>#}
+        {#    <div class="panel-heading">班级:{{ studyrecord_obj.course_record.from_class }} | 第:{{ studyrecord_obj.course_record.day_num }}节</div>#}
         <div class="panel-body">
-           <h3>作业标题:{{ studyrecord_obj.course_record.homework_title }}</h3>
-            <h4>作业详情: <pre>{{ studyrecord_obj.course_record.homework_content }}</pre> </h4>
+            <h3>作业标题:{{ studyrecord_obj.course_record.homework_title }}</h3>
+            <h4>作业详情:
+                <pre>{{ studyrecord_obj.course_record.homework_content }}</pre>
+            </h4>
             <h4>老师评语: {{ studyrecord_obj.memo }} </h4>
             <h4>本节成绩: {{ studyrecord_obj.score }} </h4>
 
         </div>
         <p>已经上传的文件:</p>
+    <div class="row">
+    <div class="col-xs-9 col-md-6">
         {% for file in file_lists %}
+            <div class="right">
             {% for foo in file %}
-                {{ foo }}  |
+                <a>{{ foo }}</a>  |
             {% endfor %}
+                <span class="img_f hide">{{ file.0 }}</span>
+                <a class="del_img">删除</a>
+            </div>
             <br>
         {% endfor %}
+    </div>
+    </div>
 
         <p>请上传作业</p>
-                <form action="{{ request.path }}" class="dropzone" id="filerdropzones" method="post">{% csrf_token %}
-                   <div class="dz-default dz-message">
-                       <div class="dz-icon icon-wrap icon-circle icon-wrap-md">
-                           <i class="fa fa-cloud-upload fa-3x"></i>
-                       </div>
+        <form action="{{ request.path }}" method="post" id="dropz" enctype="multipart/form-data" class="form-group dropzone">{% csrf_token %}
 
-                    <div>
-                        <p class="container">请将作业压缩打包后拖到这里或点击上传</p>
-                    </div>
-                    </div>
-               </form>
+            <input type="hidden" name="file_id" ng-model="file_id" id="file_id"/>
+        </form>
+
 
     </div>
 {% endblock %}
@@ -51,35 +55,82 @@
 
 <script>
 
-    Dropzone.autoDiscover=false;
-    myDropzone=new Dropzone('#filerdropzones');
-    myDropzone.on('addedfile',function(file){
-        //判断是否有上传文件
-        console.log('_+_+_+_+_',file);
-    });
-    myDropzone.on("success",function(file,response){
-       console.log('文件上传时间',response) ;
-    });
-    $(document).ready(function(){//上传图片
-        Dropzone.options.filedr={
-            url:'{{ requset.path }}',//路径为 当前页
-            paramName:'file',//文件格式
-            maxFilesize:5,//MB
-            addRemvoeLinks:true,
-            maxFiles:2,
-            uploadMultiple:true,
-            accept:function(file,done){
-                if (!file.name.endsWith(".zip") ){
-                    alert('请上传.zip格式的压缩文件!');
-                    return false;
-                }else { done(
-
-                );}
+$('.del_img').click(function(){
+        s=$(this);
+        texts= s.parent().children("span").text();
+{#        alert(texts);#}
+        $.ajax({
+            url:"{{ requset.path }}",
+            type:"post",
+            data:{"data":texts},
+            headers:{'X-CSRFtoken':$.cookie('csrftoken')},
+            success:function(arg){
+                if(arg){
+                    alert('删除成功!');
+                    s.parent('div').addClass('hide');
+                }
             }
-        }
+        })
+    });
+    Dropzone.autoDiscover = false;
+    appElement = document.querySelector('div .inmodal');
+    myDropzone = new Dropzone("#dropz",  {
+            url: "{{ request.path }}",//文件提交地址
+            method: "post",  //也可用put
+            paramName: "file", //默认为file
+            maxFiles: 1,//一次性上传的文件数量上限
+            maxFilesize: 2, //文件大小，单位：MB
+            acceptedFiles: ".zip,.7z", //上传的类型
+            addRemoveLinks: true,
+            parallelUploads: 1,//一次上传的文件数量
+            //previewsContainer:"#preview",//上传图片的预览窗口
+            dictDefaultMessage: '请将作业压缩打包后上传',
+            dictMaxFilesExceeded: "您最多只能上传1个文件！",
+            dictResponseError: '文件上传失败!',
+            dictInvalidFileType: "文件类型只能是*.zip,*.7z。",
+            dictFallbackMessage: "浏览器不受支持",
+            dictFileTooBig: "文件过大上传文件最大支持.",
+            dictRemoveLinks: "删除",
+            dictCancelUpload: "取消",
+            init: function () {
+                this.on("addedfile", function (file) {
+                    //上传文件时触发的事件
+                    document.querySelector('div .dz-default').style.display = 'none';
+                });
+                this.on("success", function (file, data) {
+                    //上传成功触发的事件
+                    console.log('ok');
+                   // angular.element(appElement).scope().file_id = data.data.id;
+                });
+                this.on("error", function (file, data) {
+                    //上传失败触发的事件
+                    console.log('fail');
+                    var message = '';
+                    //lavarel框架有一个表单验证，
+                    //对于ajax请求，JSON 响应会发送一个 422 HTTP 状态码，
+                    //对应file.accepted的值是false，在这里捕捉表单验证的错误提示
+                    if (file.accepted) {
+                        $.each(data, function (key, val) {
+                            message = message + val[0] + ';';
+                        });
+                        //控制器层面的错误提示，file.accepted = true的时候；
+                        alert(message);
+                    }
+                });
+                this.on("removedfile", function (file) {
+                    //删除文件时触发的方法
+                    //var file_id = angular.element(appElement).scope().file_id;
+{#                    if (file_id) {#}
+{#                        $.post('/admin/del/' + file_id, {'_method': 'DELETE'}, function (data) {#}
+{#                            console.log('删除结果:' + data.message);#}
+{#                        })#}
+{#                    }#}
+                   // angular.element(appElement).scope().file_id = 0;
+                    document.querySelector('div .dz-default').style.display = 'block';
+                });
+            }
+
     });
 
-
-
-    </script>
+</script>
 {% endblock %}

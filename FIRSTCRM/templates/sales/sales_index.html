@@ -1,5 +1,13 @@
-{% extends 'master/index.html' %}<!--继承后台主页-->
+{% extends 'master/index.html' %}
 
 {% block page_content %}
-   销售首页
+
+<div class="panel-default">
+    <div class="row" style="margin-bottom: 20px" >
+        <ol class="breadcrumb">
+          <li><a href="/sales/">Home</a></li>
+        </ol>
+    </div>
+    {% include 'include/panel-body.html' %}
+</div>
 {% endblock %}

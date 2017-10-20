@@ -121,19 +121,6 @@ def table_data_list(request,app_name,model_name):
     return render(request, "kingadmin/table_data_list.html", locals())#locals 返回一个包含当前范围的局部变量字典。
 
 
-#分页
-# def pag_list(page,sorted_queryset,admin_obj):#当前页   排序后数据
-#     paginator = Paginator(sorted_queryset, admin_obj.list_per_page)#传入排序后数据,制定的每页显示数  # Show 25 contacts per page
-#     try:
-#         objs = paginator.page(page)#当前的页面的数据
-#     except PageNotAnInteger:#如果不是整数
-#         # If page is not an integer, deliver first page.
-#         objs = paginator.page(1)#返回第一页面的数据
-#     except EmptyPage:
-#         # If page is out of range (e.g. 9999), deliver last page of results.
-#         objs = paginator.page(paginator.num_pages)#最后页面的数据
-#     return objs #返回分页数据
-
 #修改内容
 @permission.check_permission
 @login_required

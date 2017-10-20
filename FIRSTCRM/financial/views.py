@@ -13,7 +13,9 @@ from  django.contrib.auth.decorators import login_required
 @login_required
 @permission.check_permission#权限装饰器
 def index(request):
-
+    user_id=request.user.id
+    userinfo=models.UserProfile.objects.get(id=user_id)#帐号对象
+    roles_list=userinfo.roles.all()#角色列表
     return render(request, 'financial/index_financial.html', locals())#
 
 
@@ -24,8 +26,6 @@ def not_audit(request):
     sign=models.Enrollment.objects.all()#所有的报名表
     print(sign,'sign----->')
     return render(request, 'financial/not_audit.html', locals())#
-
-
 
 
 #审核合同

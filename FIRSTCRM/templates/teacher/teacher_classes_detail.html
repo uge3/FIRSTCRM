@@ -20,6 +20,7 @@
                 <tr>
                     <th>节数</th>
                     <th>本节大纲</th>
+                    <th>签到状态</th>
                     <th>是否有作业</th>
                     <th>作业名称</th>
                     <th>查看学员作业</th>
@@ -30,6 +31,7 @@
                     <tr>
                         <td>第 {{ courserecord.day_num }} 节</td>
                         <td>{{ courserecord.outline }} </td>
+                        <td><a href="/king_admin/crm/studyrecord/?course_record={{ courserecord.id }} ">点击修改</a></td>
                         <td>{{ courserecord.has_homework }} </td>
                         <td>{{ courserecord.homework_title }} </td>
                         <td><a href="{% url 'teacher_class_detail_howk' class_id courserecord.id  %}">点击查看</a></td>

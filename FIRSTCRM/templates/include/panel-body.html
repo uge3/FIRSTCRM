@@ -1,0 +1,30 @@
+<div class="panel-body">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">个人信息</h3>
+              </div>
+                    <div class="panel-body ">
+                        <label class="col-xs-2 control-label">帐号:</label> {{ userinfo.email }}
+                    </div>
+                    <!-- List group -->
+                <ul class="list-group">
+                <li class="list-group-item">
+                        <label class="col-xs-2 control-label">用户名:</label>{{ userinfo.name }}
+                </li>
+
+                <li class="list-group-item">
+                    <label class="col-xs-2 control-label">职位:</label>
+
+                        {% for foo in roles_list %}
+                            {{ foo }} |
+                        {% endfor %}
+
+                </li>
+                    <li class="list-group-item"><label class="col-xs-2 control-label">密码: </label>
+                        <a href="/modify/{{ request.user.id }}/">修改</a>
+                    </li>
+{#                    <li class="list-group-item" name="usrpath"> {{ request.path}}</li>#}
+                </ul>
+
+            </div>
+        </div>

@@ -18,7 +18,6 @@
                     <th>开课日期</th>
                     <th>结业日期</th>
                     <th>课程进度</th>
-                    <th>签到状态</th>
                     <th>课节详情</th>
                 </tr>
                 </thead>
@@ -29,7 +28,6 @@
                         <td>{{ class.start_date }}</td>
                         <td>{{ class.end_date }}</td>
                         <td>已上: {{ class.courserecord_set.all.count }} 节</td>
-                        <td><a href="/king_admin/crm/studyrecord/?course_record={{  class.id }} ">点击修改</a></td>
                         <td><a href="{% url 'teacher_class_detail' class.id %} ">点击查看</a></td>
                     </tr>
 

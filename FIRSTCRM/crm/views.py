@@ -10,8 +10,6 @@ from FIRSTCRM import settings
 from crm import models
 from crm.forms import forms
 
-
-
 # Create your views here.
 from crm.permissions import permission
 from king_admin.utils.permissions import permission as king_admin_permission
@@ -20,9 +18,8 @@ from io import BytesIO
 from king_admin.utils.check_code import create_validate_code
 from crm.forms.account import RegisterForm
 from django.core.exceptions import ValidationError
+from django.contrib.auth.hashers import make_password, check_password
 from king_admin import base_admin
-
-form django.contrib.auth.hashers import make_password,check_password
 
 def jsonp(request):
     func = request.GET.get('callback')
@@ -56,7 +53,7 @@ def registers(request):
         enroll_form= forms.UserProfile(request.POST)#获取数据
         if enroll_form.is_valid():#表单验证
             pass
-    
+
     return render(request,'registers.html',locals())
 
 #注册2 ajax 验证
@@ -69,7 +66,7 @@ def register(request):
     if request.method=='GET':
         obj=RegisterForm(request=request, data=request.POST)
         return render(request, 'register.html',{'obj':obj})
-    
+
     elif request.method=='POST':
         #返回的字符串 字典
         ret={'status':False,'error':None,'data':None}
@@ -79,8 +76,8 @@ def register(request):
             name = obj.cleaned_data.get('name')#获取用户名
             password = obj.cleaned_data.get('password')
             email= obj.cleaned_data.get('email')
-            #print(username,password,email)
             password=make_password(password,)#密码加密
+            #print(username,password,email)
             #数据库添加数据
             models.UserProfile.objects.create(name=name,password=password,email=email,)
             #获取用户数据
@@ -89,10 +86,10 @@ def register(request):
                 values('id', 'name', 'email',).first()
             #nid=user_info.id
             print(user_info,type(user_info),'..........')
-            #admin_obj = base_admin.site.registered_sites['crm']['userprofile']#表类
-            #user_obj=admin_obj.model.objects.get(id=user_info['id'])#类表的对象
-            #user_obj.set_password(password)#加密
-            #user_obj.save()
+            # admin_obj = base_admin.site.registered_sites['crm']['userprofile']#表类
+            # user_obj=admin_obj.model.objects.get(id=user_info['id'])#类表的对象
+            # user_obj.set_password(password)#加密
+            # user_obj.save()
             request.session['user_info'] = user_info
             #print(user_info.id)
             ret['status']=True
@@ -112,7 +109,6 @@ def register(request):
             #print(ret)
             #print(ret)
         return HttpResponse(ret)
-
 
 
 #销售首页
@@ -177,51 +173,62 @@ def enrollment(request,customer_id):
 
 
 #学员合同签定
-def stu_registration(requset,enroll_id,random_str):
+def stu_registration(request,enroll_id,random_str):
     if cache.get(enroll_id)==random_str:
         print(enroll_id,'customer_id======')
         enroll_obj=models.Enrollment.objects.get(id=enroll_id)#报名记录
-        if requset.method=="POST":
-            if requset.is_ajax():#ajax上传图片
+        enrolled_path='%s/%s/'%(settings.ENROLLED_DATA,enroll_id)#证件上传路径
+        img_file_len=0  #文件
+        if os.path.exists(enrolled_path):#判断目录是否存在
+            img_file_list=os.listdir(enrolled_path)#取目录 下的文件
+            img_file_len=len(img_file_list)
+
+
+        if request.method=="POST":
+            ret=False
+            data=request.POST.get('data')
+            if data:#如果有删除动作
+                del_img_path="%s/%s/%s"%(settings.ENROLLED_DATA,enroll_id,data)#路径
+                print(del_img_path,'=-=-=-=-=-=')
+                os.remove(del_img_path)
+                ret=True
+                return HttpResponse(json.dumps(ret))
+
+            if request.is_ajax():#ajax上传图片
                 print('ajax ')
                 enroll_data_dir="%s/%s"%(settings.ENROLLED_DATA,enroll_id)#路径
                 if not os.path.exists(enroll_data_dir):#如果不存
                     os.makedirs(enroll_data_dir,exist_ok=True)#创建目录
-                for k,file_obj in requset.FILES.items():
+                for k,file_obj in request.FILES.items():
                     with open("%s/%s"%(enroll_data_dir,file_obj.name),'wb') as f:
                         for chunk in file_obj.chunks():#写入文件
                             f.write(chunk)
                 return HttpResponse('上传完成！')
-            customer_form= forms.CustomerForm(requset.POST, instance=enroll_obj.customer)#生成表单
-    
+            customer_form= forms.CustomerForm(request.POST, instance=enroll_obj.customer)#生成表单
+
             if customer_form.is_valid():#表单验证通过
                 customer_form.save()
                 enroll_obj.contract_agreed=True#同意协议
                 enroll_obj.save()
                 status=1
-                return render(requset,'sales/stu_registration.html',locals())
+                return render(request,'sales/stu_registration.html',locals())
         else:
             if enroll_obj.contract_agreed==True:#如果协议已经签订
                 status=1
             else:
                 status=0
             customer_form= forms.CustomerForm(instance=enroll_obj.customer)#生成表单
-    
-        return render(requset,'sales/stu_registration.html',locals())
+
+        return render(request,'sales/stu_registration.html',locals())
     else:
         return HttpResponse('非法链接，请自重！')
 
-
 #提示页面
-
-def contract_prompt(requset,enroll_id):
+def contract_prompt(request,enroll_id):
     enroll_obj=models.Enrollment.objects.get(id=enroll_id)#取对象
     enroll_form= forms.EnrollmentForm(instance=enroll_obj)#报名表对象
     customers_form= forms.CustomerForm(instance=enroll_obj.customer)#学员的信息
-    return render(requset,'sales/contract_prompt.html',locals())
-
-
-
+    return render(request,'sales/contract_prompt.html',locals())
 
 #审核合同
 def contract_review(request,enroll_id):

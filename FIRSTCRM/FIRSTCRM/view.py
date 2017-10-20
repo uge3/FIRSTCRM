@@ -6,11 +6,11 @@
 #__author__='Administrator'
 import json
 from io import BytesIO
-
+from king_admin import base_admin
 from django.contrib.auth import login,authenticate,logout
 from django.core.exceptions import ValidationError
 from django.shortcuts import render,redirect,HttpResponse
-
+from  king_admin import forms as kingforms
 from crm import forms,models
 from crm.forms.account import RegisterForm
 from king_admin.utils.check_code import create_validate_code
@@ -64,8 +64,31 @@ def acc_logout(request):
     return redirect('/accounts/login/')
 
 #主页
-def index(requset):
-    return render(requset,'index.html',locals())
+def index(request):
+    return render(request,'index.html',locals())
 
+def modify(request,user_id):#用户密码修改
+    '''密码修改'''
+    admin_obj = base_admin.site.registered_sites['crm']['userprofile']#表类
+    model_form = kingforms.CreateModelForm(request,admin_obj=admin_obj)#modelform 生成表单 加验证
+    obj=admin_obj.model.objects.get(id=user_id)#类表的对象
+    errors={}#错误提示
+    if request.method=='POST':
+        ret={}
+        _password1=request.POST.get('password1')
+        _password2=request.POST.get('password2')
+        if _password1==_password2:
+            if len(_password1)>8:
+                obj.set_password(_password1)
+                obj.save()
+                ret='密码修改成功!'
+                return redirect('/accounts/login/')
+                #return HttpResponse(json.dumps(ret))
 
+            else:
+                errors['password_too_short']='must not less than 8 letters'
+        else:
+            errors['invalid_password']='passwords are not the same'#密码不一致
+
+    return render(request,'modify.html',locals())
 

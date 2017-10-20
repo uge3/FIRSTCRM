@@ -10,7 +10,10 @@ import os,sys
 @login_required
 @permission.check_permission#权限装饰器
 def index(request):
-    return  render(request,'student/index.html')
+    user_id=request.user.id
+    userinfo=models.UserProfile.objects.get(id=user_id)#帐号对象
+    roles_list=userinfo.roles.all()#角色列表
+    return  render(request,'student/index.html',locals())
 
 #我的课程首页
 @login_required
@@ -44,6 +47,7 @@ def homework_detail(request,enroll_obj_id,studyrecord_id):
         os.makedirs(homework_path,exist_ok=True)#创建目录
 
     if request.method=="POST":#上传
+        print("POST",request.POST)
         for k,v in request.FILES.items():#上传的文件
             with open('%s/%s'%(homework_path,v.name),'wb') as f:#chunk 写入文件
                 for chunk in v.chunks():
@@ -57,6 +61,15 @@ def homework_detail(request,enroll_obj_id,studyrecord_id):
         file_lists.append([file_name,os.stat(f_path).st_size,modify_time])#文件列表
 
     if request.method=="POST":#
+        ret=False
+        data=request.POST.get('data')
+        if data:#如果有删除动作
+            del_f_path="%s/%s"%(homework_path,data)#路径
+            print(del_f_path,'=-=-=-=-=-=')
+            os.remove(del_f_path)
+            ret=True
+            return HttpResponse(json.dumps(ret))
+        print("POST",request.POST)
         return HttpResponse(json.dumps({"status":0,'mag':"上传完成！",'file_lists':file_lists}))
     return render(request,'student/homework_detail.html',locals())
 

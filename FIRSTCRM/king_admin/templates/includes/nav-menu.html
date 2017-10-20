@@ -11,6 +11,21 @@
                     </button>
                     <a class="navbar-brand" href="#">KingAdmin</a>
                 </div>
+                {% block regs %}
+                <div style=" position: absolute; right: 50px;top: 15px">
+    <div class="right" style="float: right">
+
+        {% if request.user.name %}
+            <span style="color: floralwhite;margin-right: 20px">欢迎登陆：</span>
+           {% else %}
+        <a href="crm/register.html">注册</a>｜
+        <a href="accounts/login/">登陆</a>
+
+        {% endif %}
+    </div>
+    <div style="clear: both"></div>
+</div>
+            {% endblock %}
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav navbar-right">
                         <li class="dropdown">

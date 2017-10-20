@@ -25,6 +25,7 @@ urlpatterns = [
     # url(r'^check_code.html$', view.check_code),# 验证码 校对
     url(r'^accounts/login/', view.acc_login),#全局login
     url(r'^account/logout/', view.acc_logout,name='acc_logout'),#全局logout django logout 默认跳转到accounts/login
+    url(r'^modify/(\d+)', view.modify,name='acc_modify'),#全局logout django logout 默认跳转到accounts/login
     url(r'^crm/', include('crm.urls')),#客户库
     url(r'^student/', include('student.urls')),#学员
     url(r'^teacher/', include('teacher.urls')),#讲师
