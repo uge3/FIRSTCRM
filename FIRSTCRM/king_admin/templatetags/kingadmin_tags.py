@@ -3,7 +3,7 @@ from django import template
 from django.utils.safestring import mark_safe
 from django.core.exceptions import FieldDoesNotExist
 from django.utils.timezone import datetime,timedelta
-
+from django.db.models.query import QuerySet
 register = template.Library()
 
 #表的记录数据
@@ -273,7 +273,8 @@ def get_m2m_chosen_objs (admin_obj, field_name,obj):
 @register.simple_tag
 def display_all_related_obj(objs):
     #取出对象及所有相关联的数据
-    #objs=[objs,]
+    if type(objs)!=QuerySet:#如果不是批量选择
+        objs=[objs,]
     if objs:
         model_class=objs[0]._meta.model#取表对象
         model_name=objs[0]._meta.model_name#取表名

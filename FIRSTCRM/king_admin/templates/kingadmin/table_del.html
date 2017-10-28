@@ -3,7 +3,12 @@
 
 {% block right-container-content %}
 
-    {% display_all_related_obj objs %}
+    {% if obj %}
+        {% display_all_related_obj obj %}
+    {% else %}
+        {% display_all_related_obj objs %}
+    {% endif %}
+
     <ul style="color: red">
         {% for k,v in errors.items %}
             <li>{{ k }}:{{ v }}</li>
