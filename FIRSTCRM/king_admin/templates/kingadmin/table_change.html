@@ -8,6 +8,10 @@
             width:100%;
 
         }
+    .mess{
+        background-color: #00A000;
+        color: bisque;
+    }
     </style>
 {% endblock %}
 
@@ -35,6 +39,14 @@
 
         <form class="form-horizontal" method="post" onsubmit="return BeforeFormSubmit(this);">{% csrf_token %}
         <span style="color: red">{{ obj_form.errors }}</span>
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }} "{% endif %}> <span class="mess"> {{ message }}</span></li>
+    {% endfor %}
+</ul>
+{% endif %}
             {% for field in obj_form %}
                 <div class="form-group ">
                     <label class="col-sm-2 " style="font-weight: normal">
