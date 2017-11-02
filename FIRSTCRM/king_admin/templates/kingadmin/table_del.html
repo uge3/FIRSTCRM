@@ -1,8 +1,8 @@
 {% extends 'kingadmin/table_index.html' %}
 {% load kingadmin_tags %}
 
-{% block right-container-content %}
-
+{#{% block right-container-content %}#}
+{% block page_content %}
     {% if obj %}
         {% display_all_related_obj obj %}
     {% else %}
@@ -13,7 +13,6 @@
         {% for k,v in errors.items %}
             <li>{{ k }}:{{ v }}</li>
         {% endfor %}
-
     </ul>
     <form action="" method="post">{% csrf_token %}
         {% if not admin_obj.readonly_table %}

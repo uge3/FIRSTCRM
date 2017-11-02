@@ -18,6 +18,6 @@ from django.contrib import admin
 from sales import views
 urlpatterns = [
     url(r'^$', views.index,name='sales_index'),#销售首页
-    # url(r'^$', views.index,name='sal_index'),#销售首页
+    url(r'^customer/$', views.sales_customer,name='sales_customer'),#销售客户库
 
 ]

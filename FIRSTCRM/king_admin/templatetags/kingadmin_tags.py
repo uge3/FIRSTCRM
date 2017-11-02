@@ -273,6 +273,7 @@ def get_m2m_chosen_objs (admin_obj, field_name,obj):
 @register.simple_tag
 def display_all_related_obj(objs):
     #取出对象及所有相关联的数据
+    #print(type(objs),'objs==----')
     if type(objs)!=QuerySet:#如果不是批量选择
         objs=[objs,]
     if objs:

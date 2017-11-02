@@ -22,7 +22,7 @@ from crm.permissions import permission
 from king_admin import app_config
 from king_admin import base_admin
 from king_admin.utils.permissions import permission as king_admin_permission
-from django.contrib import messages
+
 #模版函数
 
 
@@ -80,7 +80,7 @@ def get_queryset_search_result(request,queryset,admin_obj):
 
 #详细列表
 @login_required
-@permission.check_permission
+#@permission.check_permission
 #@king_admin_permission.check_permission#kingadmin权限装饰器
 def table_data_list(request,app_name,model_name):
     admin_obj = base_admin.site.registered_sites[app_name][model_name]#获取到表名的数据
@@ -121,31 +121,24 @@ def table_data_list(request,app_name,model_name):
     return render(request, "kingadmin/table_data_list.html", locals())#locals 返回一个包含当前范围的局部变量字典。
 
 
-#消息提示
-# def foo(request):
-#     messages.info(request, 'info all right.')
-#     messages.error(request, 'info error.')
-
 #修改内容
-@permission.check_permission
+#@permission.check_permission
 @login_required
 def table_change(request,app_name,model_name,obj_id):
     admin_obj = base_admin.site.registered_sites[app_name][model_name]#表对象
     model_form = forms.CreateModelForm(request,admin_obj=admin_obj)#modelform 生成表单 加验证
     obj = admin_obj.model.objects.get(id=obj_id)#根据ID获取数据记录
-
     if request.method == "GET":#如果是 GET 表示 是添加记录
         obj_form = model_form(instance=obj)#数据传入表单
     elif request.method == "POST":#如果是 POST 表示 是修改后的数据
         obj_form = model_form(instance=obj,data=request.POST)#更新数据
         if obj_form.is_valid():
             obj_form.save()
-            messages.info(request, '保存成功!', extra_tags='', fail_silently=False)
 
     return render(request, "kingadmin/table_change.html", locals())
 
 #添加
-@permission.check_permission
+#@permission.check_permission
 @login_required
 def table_add(request,app_name,model_name):
     admin_obj = base_admin.site.registered_sites[app_name][model_name]#表对象
@@ -169,7 +162,7 @@ def table_add(request,app_name,model_name):
 
 
 #删除
-@permission.check_permission
+#@permission.check_permission
 @login_required
 def table_delete(request,app_name,model_name,obj_id):
 
