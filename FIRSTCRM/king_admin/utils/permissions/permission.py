@@ -13,6 +13,7 @@ def perm_check(*args,**kwargs):
     print('---perm:',request.user,request.user.is_authenticated(),current_url_name)
     #match_flag = False
     match_key = None
+    match_results = [False,] #后面会覆盖，加个False是为了让all(match_results)不出错
     if request.user.is_authenticated() is False:
          return redirect(settings.LOGIN_URL)
 
@@ -75,24 +76,22 @@ def perm_check(*args,**kwargs):
                     break
 
 
+    if all(match_results):
+        app_name, *per_name = match_key.split('_')
+        print("--->matched ",match_results,match_key)
+        print(app_name, *per_name)
+        perm_obj = '%s.%s' % (app_name,match_key)
+        print("perm str:",perm_obj)
+        if request.user.has_perm(perm_obj):
+            print('当前用户有此权限')
+            return True
+        else:
+            print('当前用户没有该权限')
+            return False
 
-
-    # if all(match_results):
-    #     app_name, *per_name = match_key.split('_')
-    #     print("--->matched ",match_results,match_key)
-    #     print(app_name, *per_name)
-    #     perm_obj = '%s.%s' % (app_name,match_key)
-    #     print("perm str:",perm_obj)
-    #     if request.user.has_perm(perm_obj):
-    #         print('当前用户有此权限')
-    #         return True
-    #     else:
-    #         print('当前用户没有该权限')
-    #         return False
-    #
-    # else:
-    #     print("未匹配到权限项，当前用户无权限")
-    #     return False
+    else:
+        print("未匹配到权限项，当前用户无权限")
+        return False
 
 
 

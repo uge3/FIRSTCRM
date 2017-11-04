@@ -37,14 +37,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'king_admin',  #admin 模块,app
+    'kingadmin',  #admin 模块,app
     'crm',#客户关系
     'student',#学员app
-    'king_admin',  #admin 模块,app
     'financial',
     'sales',
     'teacher'
-
-
 ]
 
 MIDDLEWARE = [
@@ -64,8 +63,8 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [os.path.join(BASE_DIR, 'templates'),
-                 os.path.join(BASE_DIR, 'king_admin/templates'),
-                 os.path.join(BASE_DIR,'enrolled_data')
+                 #os.path.join(BASE_DIR, 'king_admin/templates'),
+                 #os.path.join(BASE_DIR,'enrolled_data')
                  ]
         ,
         'APP_DIRS': True,
@@ -141,15 +140,26 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'statics'),#静态目录
+#STATIC_ROOT = os.path.join(BASE_DIR, 'statics')
+STATICFILES_DIRS = [
+     "%s/%s" %(BASE_DIR, "statics"),
+
+    #os.path.join(BASE_DIR, 'statics'),#静态目录
+    #'/path/to/others/statics/',
     # os.path.join(BASE_DIR, 'enrolled_data'),#静态目录
+]
+# 这个是默认设置，Django 默认会在 STATICFILES_DIRS中的文件夹 和 各app下的static文件夹中找文件
+# 注意有先后顺序，找到了就不再继续找了
+STATICFILES_FINDERS = (
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder"
 )
-# STATIC_ROOT=os.path.join(BASE_DIR,'static')
+# STATIC_ROOT=os.path.join(BASE_DIR,'statics')
 CACHES = {
             'default': {
                 'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-                'LOCATION': os.path.join(BASE_DIR,'cache')
+                #'LOCATION': os.path.join(BASE_DIR,'cache')
+                'LOCATION': 'unique-snowflake',
                 }
         }
 AUTH_USER_MODEL = 'crm.UserProfile'#使用自定的admin 表单

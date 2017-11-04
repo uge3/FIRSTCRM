@@ -1,0 +1,16 @@
+{% extends 'king_admin/table_change.html' %}
+{% load kingadmin_tags %}
+{% block Tops %}
+        <h4>add  {% get_model_verbose_name admin_obj.model %}</h4>
+{% endblock %}
+{% block del %}{% endblock %}
+
+<script>
+        function BeforeFormSubmit(form_ele) {
+
+            console.log(form_ele);
+            $('form input[disabled]').prop("disabled", true);
+
+            return true;
+        }
+</script>

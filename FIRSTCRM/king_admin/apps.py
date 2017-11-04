@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class KingAdminConfig(AppConfig):
+class King_AdminConfig(AppConfig):
     name = 'king_admin'

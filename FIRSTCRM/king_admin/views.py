@@ -1,49 +1,77 @@
 
-
-
 # Create your views here.
-
-
-
-from django.shortcuts import render,redirect
-
+from django.shortcuts import render,redirect,HttpResponse,HttpResponseRedirect,Http404
+import datetime
+import re
 from django import conf
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from  king_admin import forms
+from django.core.cache import cache
 from  django.contrib.auth.decorators import login_required
 from king_admin.utils.page import pag_list
-import json
-#from king_admin import permission
-from crm.permissions import permission
+from django.contrib.auth import login,logout,authenticate
 # Create your views here.
 #print("dj conf:",conf.settings)
 
 from king_admin import app_config
 from king_admin import base_admin
 from king_admin.utils.permissions import permission as king_admin_permission
+from django.contrib import messages
+
 
 #模版函数
+def acc_login(request):
+    err_msg = {}
+    today_str = datetime.date.today().strftime("%Y%m%d")
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        _verify_code = request.POST.get('verify_code')
+        _verify_code_key  = request.POST.get('verify_code_key')
 
+        ##print("verify_code_key:",_verify_code_key)
+        ##print("verify_code:",_verify_code)
+        if cache.get(_verify_code_key) == _verify_code:
+            #print("code verification pass!")
+
+            user = authenticate(username=username,password=password)
+            if user is not None:
+                login(request,user)
+                request.session.set_expiry(60*60)
+                return HttpResponseRedirect(request.GET.get("next") if request.GET.get("next") else "/king_admin/")
+
+            else:
+                err_msg["error"] = 'Wrong username or password!'
+
+        else:
+            err_msg['error'] = "验证码错误!"
+
+    #return render(request,'login.html',{"filename":random_filename, "today_str":today_str, "error":err_msg})
+    return render(request,'king_admin/login.html',{ "error":err_msg})
+
+
+def acc_logout(request):
+    logout(request)
+    return HttpResponseRedirect("/king_admin/login/")
 
 #app 下表名
 #@permission.check_permission
-
-@login_required
-@permission.check_permission#权限装饰器
+@login_required(login_url="/king_admin/login/")
+#@permission.check_permission#权限装饰器
 def app_index(request):
     # for app in conf.settings.INSTALLED_APPS:
     #     print(app)
     print("registered_sites",base_admin.site.registered_sites)
     print("sites",base_admin.site)
-    return render(request, 'kingadmin/app_index.html', {"site":base_admin.site})#返回所有注册app的对象
+    return render(request, 'king_admin/app_index.html', {"site":base_admin.site})#返回所有注册app的对象
 
 #单个app
-@login_required
-@permission.check_permission#权限装饰器
+@login_required(login_url="/king_admin/login/")
+#@permission.check_permission#权限装饰器
 def table_index(request,app_name):
     bases=base_admin.site.registered_sites[app_name]#取出对应app对象
-    return render(request, 'kingadmin/table_index.html', {"site":bases,'app_name':app_name})
+    return render(request, 'king_admin/table_index.html', {"site":bases,'app_name':app_name})
 
 #条件筛选
 def filter_querysets(request,queryset):
@@ -79,11 +107,13 @@ def get_queryset_search_result(request,queryset,admin_obj):
     return res#返回结果
 
 #详细列表
-@login_required
+@login_required(login_url="/king_admin/login/")
 #@permission.check_permission
 #@king_admin_permission.check_permission#kingadmin权限装饰器
 def table_data_list(request,app_name,model_name):
+    print(request,app_name,model_name)
     admin_obj = base_admin.site.registered_sites[app_name][model_name]#获取到表名的数据
+    print(admin_obj)
     if request.method == "POST":#批量操作
         action = request.POST.get("action_select")#要调用的自定制功能函数
         selected_ids = request.POST.get("selected_ids")#前端提交的数据
@@ -118,12 +148,12 @@ def table_data_list(request,app_name,model_name):
 
     admin_obj.querysets =  objs
     admin_obj.filter_condtions = condtions
-    return render(request, "kingadmin/table_data_list.html", locals())#locals 返回一个包含当前范围的局部变量字典。
+    return render(request, "king_admin/table_data_list.html", locals())#locals 返回一个包含当前范围的局部变量字典。
 
 
 #修改内容
 #@permission.check_permission
-@login_required
+@login_required(login_url="/king_admin/login/")
 def table_change(request,app_name,model_name,obj_id):
     admin_obj = base_admin.site.registered_sites[app_name][model_name]#表对象
     model_form = forms.CreateModelForm(request,admin_obj=admin_obj)#modelform 生成表单 加验证
@@ -134,12 +164,13 @@ def table_change(request,app_name,model_name,obj_id):
         obj_form = model_form(instance=obj,data=request.POST)#更新数据
         if obj_form.is_valid():
             obj_form.save()
+            messages.info(request, '保存成功!', extra_tags='', fail_silently=False)
 
-    return render(request, "kingadmin/table_change.html", locals())
+    return render(request, "king_admin/table_change.html", locals())
 
 #添加
 #@permission.check_permission
-@login_required
+@login_required(login_url="/king_admin/login/")
 def table_add(request,app_name,model_name):
     admin_obj = base_admin.site.registered_sites[app_name][model_name]#表对象
     admin_obj.is_add_form=True#表示为新增表单
@@ -158,12 +189,12 @@ def table_add(request,app_name,model_name):
         if not obj_form.errors:
             return  redirect("/king_admin/%s/%s/" % (app_name,model_name))#转到之前的页面
 
-    return render(request, "kingadmin/table_add.html", locals())#locals 返回一个包含当前范围的局部变量字典。
+    return render(request, "king_admin/table_add.html", locals())#locals 返回一个包含当前范围的局部变量字典。
 
 
 #删除
 #@permission.check_permission
-@login_required
+@login_required(login_url="/king_admin/login/")
 def table_delete(request,app_name,model_name,obj_id):
 
     admin_obj = base_admin.site.registered_sites[app_name][model_name]#表类
@@ -178,12 +209,12 @@ def table_delete(request,app_name,model_name,obj_id):
         if  not admin_obj.readonly_table:
             obj.delete()#删除
             return redirect("/king_admin/%s/%s/%s/" % (app_name,model_name,obj_id))#转到列表页面
-    return render(request, "kingadmin/table_del.html", locals())#locals 返回一个包含当前范围的局部变量字典。
+    return render(request, "king_admin/table_del.html", locals())#locals 返回一个包含当前范围的局部变量字典。
 
 
 #密码修改
-@permission.check_permission
-@login_required
+#@permission.check_permission
+@login_required(login_url="/king_admin/login/")
 def password_reset(request,app_name,model_name,obj_id):
     '''密码修改'''
     admin_obj = base_admin.site.registered_sites[app_name][model_name]#表类
@@ -203,4 +234,4 @@ def password_reset(request,app_name,model_name,obj_id):
         else:
             errors['invalid_password']='passwords are not the same'#密码不一致
 
-    return render(request, "kingadmin/password_reset.html", locals())#locals 返回一个包含当前范围的局部变量字典。
+    return render(request, "king_admin/password_reset.html", locals())#locals 返回一个包含当前范围的局部变量字典。

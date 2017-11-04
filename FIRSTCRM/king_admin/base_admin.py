@@ -50,7 +50,7 @@ class BaseAdmin(object):
         selected_ids=','.join([str(i.id) for i in queryset])
         print(selected_ids,'<---selected_ids')
         objs=queryset
-        return render(request,"kingadmin/table_del.html", locals())
+        return render(request,"king_admin/table_del.html", locals())
 
 class AdminSite(object):
     def __init__(self):

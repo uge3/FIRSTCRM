@@ -35,6 +35,29 @@ class Customer(models.Model):
         verbose_name='客户表'
         verbose_name_plural='客户表'
 
+    def clean_status(self):
+        status = self.cleaned_data['status']
+        if self.instance.id == None:  # add form
+            if status == "signed":
+                raise forms.ValidationError(("必须走完报名流程后，此字段才能改名已报名"))
+            else:
+                return status
+
+        else:
+            return status
+    def clean_consultant(self):
+        consultant = self.cleaned_data['consultant']
+
+        if self.instance.id == None :#add form
+            return self._request.user
+
+        elif consultant.id != self.instance.consultant.id:
+            raise forms.ValidationError(('Invalid value: %(value)s 课程顾问不允许被修改,shoud be %(old_value)s'),
+                                         code='invalid',
+                                         params={'value': consultant,'old_value':self.instance.consultant})
+        else:
+            return consultant
+
 #标签表
 class Tag(models.Model):
     name=models.CharField(unique=True,max_length=32)
@@ -118,7 +141,7 @@ class CourseRecord(models.Model):
     homework_title=models.CharField(max_length=128,blank=True,null=True,verbose_name='作业名称')#作业名称
     homework_content=models.TextField(blank=True,null=True,verbose_name='作业内容')#作业内容
     outline= models.TextField(verbose_name='本节课程大纲')
-    date=models.DateField(auto_now_add=True)#上课时间
+    date=models.DateField(auto_now_add=True, verbose_name="上课日期")#上课时间
     def __str__(self):
         return '班级:%s第 %s 节'%(self.from_class,self.day_num)#班级,节数
 
@@ -179,11 +202,12 @@ class Payment(models.Model):
     course=models.ForeignKey('Course',verbose_name='所报课程')#意向课程
     amount=models.PositiveIntegerField(verbose_name='数额',default=500)#所交金额
     consultant=models.ForeignKey('UserProfile')#办理人员 课程顾问
-    date=models.DateTimeField(auto_now_add=True)#时间
+    date=models.DateTimeField("交款日期",auto_now_add=True)#时间
 
     def __str__(self):
         return '%s %s'%(self.customer,self.amount)#返回学员,金额
     class Meta:
+        verbose_name='缴费记录'
         verbose_name_plural='缴费记录'
 
 
@@ -270,7 +294,7 @@ class UserProfile(AbstractBaseUser,PermissionsMixin):
     class Meta:
          verbose_name_plural='帐号表'
          permissions=(
-                      #kingadmin
+                      #king_admin
                       ('can_access_king_admin',"KINGADMIN 首页"),
                       ('can_table_index',"KINGADMIN_单个app"),
                       ('can_table_list',"KINGADMIN_app中 列表查看"),
@@ -362,7 +386,8 @@ class Menu(models.Model):
     def __str__(self):
         return self.name
     class Meta:
-        verbose_name_plural='菜单表'
+        verbose_name='动态菜单表'
+        verbose_name_plural = "动态菜单表"
 
 #合同模版
 class ContractTemplate(models.Model):
@@ -374,3 +399,37 @@ class ContractTemplate(models.Model):
     class Meta:
 
         verbose_name_plural='合同表'
+
+#     第一层侧边栏菜单
+class FirstLayerMenu(models.Model):
+    '''第一层侧边栏菜单'''
+    name = models.CharField('菜单名',max_length=64)
+    url_type_choices = ((0,'related_name'),(1,'absolute_url'))
+    url_type = models.SmallIntegerField(choices=url_type_choices,default=0)
+    url_name = models.CharField(max_length=64,unique=True)
+    order = models.SmallIntegerField(default=0,verbose_name='菜单排序')
+    sub_menus = models.ManyToManyField('SubMenu',blank=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "第一层菜单"
+        verbose_name_plural = "第一层菜单"
+#第二层侧边栏菜单
+class SubMenu(models.Model):
+    '''第二层侧边栏菜单'''
+
+    name = models.CharField('二层菜单名', max_length=64)
+    url_type_choices = ((0,'related_name'),(1,'absolute_url'))
+    url_type = models.SmallIntegerField(choices=url_type_choices,default=0)
+    url_name = models.CharField(max_length=64, unique=True)
+    order = models.SmallIntegerField(default=0, verbose_name='菜单排序')
+
+    def __str__(self):
+        return self.name
+
+
+    class Meta:
+        verbose_name = "第二层菜单"
+        verbose_name_plural = "第二层菜单"

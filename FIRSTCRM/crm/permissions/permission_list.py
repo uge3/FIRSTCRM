@@ -20,65 +20,65 @@ perm_dic={
     #     'method':'GET',#中用于GET
     #     'args':[]
     # },
-    'crm.can_access_obj_add':{#kingadmin 信息添加
+    'crm.can_access_obj_add':{#king_admin 信息添加
         'url_type':0,
         'url':'obj_add',#url name
         'method':'GET',#只能用GET
         'args':[]
     },
-    'crm.can_access_obj_add_post':{#kingadmin  信息添加post
+    'crm.can_access_obj_add_post':{#king_admin  信息添加post
         'url_type':0,
         'url':'obj_add',#url name
         'method':'POST',#POST
         'args':[]
     },
-    'crm.can_table_index':{#kingadmin  单个APP查看
+    'crm.can_table_index':{#king_admin  单个APP查看
         'url_type':0,
         'url':'table_index',#url name
         'method':'GET',#用于
         'args':[]
     },
 
-    'crm.can_table_list':{#kingadmin  列表查看
+    'crm.can_table_list':{#king_admin  列表查看
         'url_type':0,
         'url':'table_list',#url name
         'method':'GET',#用于
         'args':[]
     },
 
-    'crm.can_access_table_change':{#kingadmin  信息修改
+    'crm.can_access_table_change':{#king_admin  信息修改
         'url_type':0,
         'url':'table_change',#url name
         'method':'GET',#只能用GET
         'args':[]
     },
-    'crm.can_access_table_change_post':{#kingadmin  信息修改post
+    'crm.can_access_table_change_post':{#king_admin  信息修改post
         'url_type':0,
         'url':'table_change',#url name
         'method':'POST',#POST
         'args':[]
     },
 
-    'crm.can_access_obj_delete':{#kingadmin  信息删除
+    'crm.can_access_obj_delete':{#king_admin  信息删除
         'url_type':0,
         'url':'obj_delete',#url name
         'method':'GET',#只能用GET
         'args':[]
     },
-    'crm.can_access_obj_delete_post':{#kingadmin  信息删除post
+    'crm.can_access_obj_delete_post':{#king_admin  信息删除post
         'url_type':0,
         'url':'obj_delete',#url name
         'method':'POST',#POST
         'args':[]
     },
 
-    'crm.can_access_password_reset':{#kingadmin  修改密码
+    'crm.can_access_password_reset':{#king_admin  修改密码
         'url_type':0,
         'url':'password_reset',#url name
         'method':'GET',#只能用GET
         'args':[]
     },
-    'crm.can_access_password_reset_post':{#kingadmin  修改密码post
+    'crm.can_access_password_reset_post':{#king_admin  修改密码post
         'url_type':0,
         'url':'password_reset',#url name
         'method':'POST',#POST
