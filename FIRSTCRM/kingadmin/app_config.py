@@ -6,6 +6,6 @@ from django import conf
 for app in conf.settings.INSTALLED_APPS:
     try:
         admin_module = __import__("%s.kingadmin" % app)
-        print(admin_module.kingadmin.site)
+        print(admin_module.kingadmin.site,'||||admin_module.kingadmin.site}}}}}}')
     except ImportError:
         pass

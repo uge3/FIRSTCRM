@@ -63,7 +63,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [os.path.join(BASE_DIR, 'templates'),
-                 #os.path.join(BASE_DIR, 'king_admin/templates'),
+                 os.path.join(BASE_DIR, 'king_admin/templates'),
                  #os.path.join(BASE_DIR,'enrolled_data')
                  ]
         ,
@@ -143,6 +143,7 @@ STATIC_URL = '/static/'
 #STATIC_ROOT = os.path.join(BASE_DIR, 'statics')
 STATICFILES_DIRS = [
      "%s/%s" %(BASE_DIR, "statics"),
+     "%s/%s" %(BASE_DIR, "/king_admin/statics"),
 
     #os.path.join(BASE_DIR, 'statics'),#静态目录
     #'/path/to/others/statics/',

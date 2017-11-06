@@ -53,7 +53,7 @@ class BaseAdmin(object):
         return render(request,"king_admin/table_del.html", locals())
 
 class AdminSite(object):
-    def __init__(self):
+    def __init__(self, name='admin'):
         self.registered_sites = {}#定义一个字典 全局
 
     def register(self,model,admin_class=None,**options):
@@ -68,7 +68,7 @@ class AdminSite(object):
 
         if not  admin_class:#如果没有传入 即默认
             #use baseadmin
-            admin_class = BaseAdmin#默认格式
+            admin_class = BaseAdmin()#默认格式
         admin_obj = admin_class()#传入定制格式的函数
         admin_obj.model = model#加入要定制的对象
 
