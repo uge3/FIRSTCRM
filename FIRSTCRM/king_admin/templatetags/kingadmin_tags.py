@@ -282,8 +282,11 @@ def display_all_related_obj(objs):
         return mark_safe(recursive_related_objs_lookup(objs))
 
 #删除 显示内容拼接
-def recursive_related_objs_lookup(objs):
-    #model_name=objs[0]._meta.model_name#取表名#递归时使用
+def recursive_related_objs_lookup(objs,name=None,conn_batch_size=0):
+    model_name=objs.__str__()#取表名#递归时使用
+    print(model_name,'model-name')
+    #name = objs[0]._meta.model_name
+    name=set()
     ul_ele="<ul>"
     for obj in objs:
         #                                         关联的表的自定表名
@@ -318,9 +321,16 @@ def recursive_related_objs_lookup(objs):
                     target_objs=accessor_obj.select_related()#取出所有外键相关联
                 else:
                     target_objs=accessor_obj
-                if len(target_objs)>0:#如果还有下层
-                    nodes=recursive_related_objs_lookup(target_objs)#递归
-                    ul_ele+=nodes
+                # if len(target_objs)>0:#如果还有下层
+                if len(target_objs)!=conn_batch_size:#如果还有下层
+                    names=target_objs.__str__()
+                    if names==model_name:#如果是自己关联自己，就不递归了
+                        ul_ele+="</ul>"
+                    else:
+                        conn_batch_size=conn_batch_size+1
+                        # nodes=recursive_related_objs_lookup(target_objs)#递归
+                        nodes=recursive_related_objs_lookup(target_objs,name=model_name,conn_batch_size=conn_batch_size)#递归
+                        ul_ele+=nodes
     ul_ele+="</ul>"
     return ul_ele
 
