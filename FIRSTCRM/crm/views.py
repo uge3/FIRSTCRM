@@ -82,7 +82,7 @@ def register(request):
             models.UserProfile.objects.create(name=name,password=password,email=email,)
             #获取用户数据
             user_info= models.UserProfile.objects. \
-                filter(name=name, password=password). \
+                filter(email=email, password=password). \
                 values('id', 'name', 'email',).first()
             #nid=user_info.id
             print(user_info,type(user_info),'..........')
