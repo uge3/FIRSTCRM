@@ -81,6 +81,8 @@ def render_list_editable_column(table_obj,row_obj, field_obj):
     #print(table_obj,row_obj,field_obj,field_obj.name,field_obj.get_internal_type())
     if field_obj.get_internal_type() in ("CharField","ForeignKey","BigIntegerField","IntegerField"):
         column_data = field_obj._get_val_from_obj(row_obj)
+        print(type(column_data),'/方法',row_obj)
+        print(column_data,'column_data')
         if not field_obj.choices and field_obj.get_internal_type() != "ForeignKey" :
 
             column = '''<input data-tag='editable' type='text' name='%s' value='%s' >''' %\

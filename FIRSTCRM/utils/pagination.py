@@ -4,7 +4,7 @@ from django.utils.safestring import mark_safe
 
 class Page:
     #             当前所在页面   记录条数统计  页面显示记录数   显示的页面数量
-    def __init__(self, current_page, data_count, per_page_count=10, pager_num=7):
+    def __init__(self, current_page, data_count, per_page_count=3, pager_num=7):
         try:
             self.current_page = int(current_page)#当前当前所在页面
         except Exception as e:

@@ -139,7 +139,7 @@ def enrollment(request,customer_id):
         enroll_form= forms.EnrollmentForm(request.POST)#获取数据
         if enroll_form.is_valid():#表单验证
             msg = '''请将此链接发给客户进行填写：
-                    http://127.0.0.1:8000/crm/customer/registration/{enroll_obj_id}/{random_str}/
+                    http://127.0.0.1:8789/crm/customer/registration/{enroll_obj_id}/{random_str}/
                 '''
             random_str=''.join(random.sample(string.ascii_lowercase+string.digits,8))#生成8位随机字符串
             url_str='''customer/registration/{enroll_obj_id}/{random_str}/'''#报名链接

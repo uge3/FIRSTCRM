@@ -5,8 +5,8 @@ from django.shortcuts import  render,redirect
 
 
 class BaseKingAdmin(object):
-    list_display = []
-    list_filters = []
+    list_display = []#显示
+    list_filters = []#
     search_fields = []
     list_per_page = 20
     ordering = None

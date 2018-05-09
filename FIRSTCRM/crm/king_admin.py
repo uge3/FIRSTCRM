@@ -169,7 +169,9 @@ class CourseAdmin(BaseAdmin):
 
 #班级表
 class ClassListAdmin(BaseAdmin):
-    list_display = ('course','semester')
+    list_filter = ('branch','course','class_type')
+    search_fields=('semester','start_date')
+    list_display = ('branch','course','semester','class_type','start_date')
 
 #帐号表
 class UserProfileAdmin(BaseAdmin):

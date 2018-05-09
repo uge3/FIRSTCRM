@@ -11,6 +11,8 @@ from django.http import StreamingHttpResponse
 import FIRSTCRM.settings
 # from django.core.servers.basehttp import FileWrapper
 from king_admin.utils.pagination import Page as Pagination
+from king_admin.utils.page import pag_list,filter_querysets,get_queryset_search_result,get_orderby
+from king_admin import base_admin
 
 #讲师首页
 #@king_admin_permission.check_permission#kingadmin权限装饰器
@@ -28,7 +30,17 @@ def index(request):
 def teacher_my_classes(request):
     # print(request.user.id,'-------=========')
     user_id=request.user.id
+    admin_obj = base_admin.site.registered_sites['crm']['classlist']#取自定每页显示的数量
+    print(type(admin_obj),'adminob类型')
     classlist=models.UserProfile.objects.get(id=user_id).classlist_set.all()#讲师所教班级
+    #classlist2=admin_obj.filter(id=user_id).all()
+    queryset,condtions =  filter_querysets(request, classlist)# 调用条件过滤
+    queryset = get_queryset_search_result(request,queryset,admin_obj)#关键搜索
+    sorted_queryset = get_orderby(request,queryset)#排序
+    page = request.GET.get('page')#获取当前页面数
+    objs=pag_list(page,sorted_queryset,admin_obj)#调用函数 分页
+    admin_obj.filter_condtions=condtions#总数量
+    admin_obj.querysets =  objs#数据
     return render(request,'teacher/teacher_my_classes.html',locals())
 
 
@@ -42,13 +54,16 @@ def my_classes_change(request,class_id):#讲师班级修改
 #班级学员详情
 #@login_required
 #@permission.check_permission#权限装饰器
+
 def teacher_class_detail(request,class_id):
     user_id=request.user.id
     classes_obj=models.UserProfile.objects.get(id=user_id).classlist_set.get(id=class_id)#所选的班级
-    courserecordlist=classes_obj.courserecord_set.all()#上课记录
-    data_count=len(courserecordlist)
+    course_recordlist=classes_obj.courserecord_set.all()#上课记录
+    data_count=len(course_recordlist)
     #当前页数 默认为1
     page = Pagination(request.GET.get('p', 1), data_count)
+    #courserecordlist=classes_obj.courserecord_set.all()[page.start:page.end]#上课记录
+    courserecordlist=course_recordlist[page.start:page.end]
     #总页数 传入url
     page_str = page.page_str('/teacher/teacher_class_detail/%s/'%class_id)
     return render(request, 'teacher/teacher_classes_detail.html', locals())
@@ -57,10 +72,11 @@ def teacher_class_detail(request,class_id):
 def teacher_class_detail_howk(request,class_id,courserecord_id):
     HOMEWORK_path='/%s/class_id/courserecord_id/'%(settings.HOMEWORK_DATA,)#作业根路径
     classes_obj=models.UserProfile.objects.get(id=request.user.id).classlist_set.get(id=class_id)#所选的班级
-    studyrecord_list=models.CourseRecord.objects.get(id=courserecord_id).studyrecord_set.all()#取本节课所有学员
-    data_count=len(studyrecord_list)
+    study_record_list=models.CourseRecord.objects.get(id=courserecord_id).studyrecord_set.all()#取本节课所有学员
+    data_count=len(study_record_list)
     #当前页数 默认为1
     page = Pagination(request.GET.get('p', 1), data_count)
+    studyrecord_list=study_record_list[page.start:page.end]# 切片取当前页的数据
     #总页数 传入url
     page_str = page.page_str('/teacher/teacher_class_detail/%s/%s/'%(class_id,courserecord_id))
 

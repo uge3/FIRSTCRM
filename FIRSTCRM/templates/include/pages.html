@@ -1,0 +1,30 @@
+<!--分页-->
+ {% load kingadmin_tags %}
+        <div class="row panel-body">
+            <nav aria-label="...">
+                <ul class="pagination">
+                    <!--如果有上一页-->
+                    {% if admin_obj.querysets.has_previous %}
+                        <li><a href="?page=
+                                {{ admin_obj.querysets.previous_page_number }}{% generate_order_by_url request %}{% generate_filter_url admin_obj %}&_q={% get_search_key request %}"
+                               aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+                    {% else %}
+                        <li class="disabled">
+                            <a href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+                    {% endif %}
+
+                    {% pag_omit request admin_obj %}
+
+                    <!--如果有下一页-->
+                    {% if admin_obj.querysets.has_next %}
+                        <li><a href="?page=
+                                {{ admin_obj.querysets.next_page_number }}{% generate_order_by_url request %}{% generate_filter_url admin_obj %}&_q={% get_search_key request %}"
+                               aria-label="Previous"><span aria-hidden="true">&raquo;</span></a></li>
+                    {% else %}
+                        <li class="disabled"><a href="#" aria-label="Previous"><span
+                                aria-hidden="true">&raquo;</span></a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>

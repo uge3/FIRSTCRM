@@ -119,13 +119,12 @@ def verbose_name_set(admin_obj,column):
     return verbose_name
 
 
-
 #过滤条件
 @register.simple_tag
 def get_filter_field (filter_column,admin_obj):#过滤条件
     print("admin obj",admin_obj.model ,filter_column)
     field_obj = admin_obj.model._meta.get_field(filter_column)
-    select_ele = """<select class="form-control" name='{filter_column}'><option class="form-control" value="">---------</option>""" #标签 字符串
+    select_ele = """<select class="form-control" name='{filter_column}'><option class="form-control" value=""></option>""" #标签 字符串
     #if type(field_obj).__name__=='ForeignKey':
 
     if type(field_obj).__name__ in ['DateTimeField','DateField']:#如果是时间格式
@@ -231,7 +230,8 @@ def display_order_by_icon(request, column):
 @register.simple_tag
 def get_admin_actions(admin_obj):
     #选择功能
-    options = "<option class='form-control' value='-1'>-------</option>"#默认为空
+    #options = "<option class='form-control' value='-1'></option>"#默认为空
+    options=''
     actions = admin_obj.default_actions + admin_obj.actions #默认加自定制
     print('默认加自定制',actions)
     for action in actions:

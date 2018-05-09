@@ -162,11 +162,11 @@ def display_table_list(request,app_name,table_name,embed=False):
                         return action_func(admin_class, request, selected_objs)
 
 
-            querysets = tables.table_filter(request, admin_class,admin_class.model)
-            searched_querysets = tables.search_by(request,querysets,admin_class)
-            order_res = tables.get_orderby(request, searched_querysets, admin_class)
+            querysets = tables.table_filter(request, admin_class,admin_class.model)#查询
+            searched_querysets = tables.search_by(request,querysets,admin_class)#搜索
+            order_res = tables.get_orderby(request, searched_querysets, admin_class)#排序
 
-            paginator = Paginator(order_res[0], admin_class.list_per_page)
+            paginator = Paginator(order_res[0], admin_class.list_per_page)#调用分页
 
             page = request.GET.get('page')
             try:

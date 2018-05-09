@@ -142,7 +142,7 @@
     Dropzone.autoDiscover=false;
     appElement = document.querySelector('div .inmodal');
     myDropzone = new Dropzone("#filerdropzone", {
-            url: '{{ requset.path }}',//路径为 当前页
+            url: '{{ request.path }}',//路径为 当前页
             paramName: "file", //默认为file
             method: "post",
             maxFilesize: 1,//MB

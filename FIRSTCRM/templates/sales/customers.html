@@ -6,16 +6,16 @@
 
 {% block page_content %}
 
-    <div class="row" style="margin-bottom: 20px">
-        <ol class="breadcrumb">
-            <li><a href="/king_admin/">Home</a></li>
-            <li><a href="/king_admin/{% get_app_name admin_obj.model %}/">{% get_app_name admin_obj.model %}</a></li>
-            <li class="active">{% get_model_verbose_name admin_obj.model %}</li>
-        </ol>
-        {% if not admin_obj.readonly_table %}
-        <a href="{{ request.path }}add/" class="btn btn-sm btn-success pull-right">+Add {% get_model_verbose_name admin_obj.model %} </a>
-        {% endif %}
-    </div>
+{#    <div class="row" style="margin-bottom: 20px">#}
+{#        <ol class="breadcrumb">#}
+{#            <li><a href="/king_admin/">Home</a></li>#}
+{#            <li><a href="/king_admin/{% get_app_name admin_obj.model %}/">{% get_app_name admin_obj.model %}</a></li>#}
+{#            <li class="active">{% get_model_verbose_name admin_obj.model %}</li>#}
+{#        </ol>#}
+{#        {% if not admin_obj.readonly_table %}#}
+{#        <a href="{{ request.path }}add/" class="btn btn-sm btn-success pull-right">+Add {% get_model_verbose_name admin_obj.model %} </a>#}
+{#        {% endif %}#}
+{#    </div>#}
 
     <div class="panel panel-info">
 {#        <div class="panel-heading">#}

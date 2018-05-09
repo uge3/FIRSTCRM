@@ -93,9 +93,6 @@ def perm_check(*args,**kwargs):
         print("未匹配到权限项，当前用户无权限")
         return False
 
-
-
-
 #装饰器函数
 def check_permission(func):
     def inner(*args,**kwargs):

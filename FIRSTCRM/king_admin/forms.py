@@ -87,7 +87,7 @@ def CreateModelForm(request,admin_obj):#传入前端提交的表单
                 #field_val = self.cleaned_data.get(field)#前端传来的值
                 #print('field_val',type(field_val))
                 if field_val_from_db != field_val:
-                    print("field not change ")#不一致
+                    #print("field not change ")#不一致
                     error_list.append(ValidationError(#添加错误信息
                                     _("该字段%(field)s 不可修改,原值为: %(val)s"),
                                     code='invalid',
@@ -101,7 +101,7 @@ def CreateModelForm(request,admin_obj):#传入前端提交的表单
         for field in self.cleaned_data:#单独字段
             if hasattr(admin_obj,'clean_%s'%field):#是否有该字段的单独验证
                 field_clean_func=getattr(admin_obj,'clean_%s'%field)#获取对应的函数
-                print('-------------||||||||----------------')
+                #print('-------------||||||||----------------')
                 response=field_clean_func(self)#
                 if response:
                     error_list.append(response)
