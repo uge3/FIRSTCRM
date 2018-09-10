@@ -67,7 +67,7 @@ class UserProfileAdmin(UserAdmin):#用户类,继承上一个类 UserAdmin
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
-    list_display = ('email', 'name', 'is_admin', 'is_active','is_staff')
+    list_display = ('email', 'name', 'is_admin', 'is_active')
     list_filter = ('is_admin',)
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
@@ -158,6 +158,9 @@ class RoleAdmin(admin.ModelAdmin):
     # filter_horizontal = ('permissions',)#权限
 
 
+class FirstLayerMenuAdmin(admin.ModelAdmin):
+    list_display = ['name']
+
 admin.site.register(models.Customer,CustomerAdmin)##客户表
 admin.site.register(models.Tag)##标签表
 admin.site.register(models.CustomerFollowUp)##跟进记录表
@@ -170,6 +173,6 @@ admin.site.register(models.Enrollment)##报名表
 admin.site.register(models.Payment)##缴费记录
 #admin.site.register(models.UserProfile)##帐号表
 admin.site.register(models.Role,RoleAdmin)##角色表
-#admin.site.register(models.Role)##角色表
+admin.site.register(models.FirstLayerMenu,FirstLayerMenuAdmin)##角色表
 admin.site.register(models.Menu)##菜单表
 admin.site.register(models.ContractTemplate)##合同表

@@ -11,7 +11,7 @@ class CustomerAdmin(BaseAdmin):
     list_filter = ('source','status','consultant','consult_course','date')
     search_fields = ('qq','name','consultant__name')#外键用 双下划线
     list_editable = ('status')
-    list_per_page = 4
+    list_per_page = 3
     readonly_fields = ('qq','consultant','tags','status')
     actions = ["change_status",]
     filter_horizontal = ('tags')
@@ -126,7 +126,6 @@ class CourseRecordAdmin(BaseAdmin):
     actions = ['initialize_studyrecords',]
     initialize_studyrecords.short_description = "创建班级本节上课记录"#显示别名
 
-
 #学员 学习记录
 class StudyRecordAdmin(BaseAdmin):
     list_display = ['student','course_record','attendance','score','date']
@@ -169,8 +168,9 @@ class CourseAdmin(BaseAdmin):
 
 #班级表
 class ClassListAdmin(BaseAdmin):
-    list_filter = ('branch','course','class_type')
+    list_filter = ('branch','course','class_type','teacher')
     search_fields=('semester','start_date')
+    list_per_page = 3
     list_display = ('branch','course','semester','class_type','start_date')
 
 #帐号表
@@ -186,6 +186,10 @@ class EnrollmentAdmin(BaseAdmin):
     list_filter =['enrolled_class','consultant']#排序
     # readonly_fields = ['contract_agreed']#不可修改
 
+
+class MenuAdmin(BaseAdmin):
+    list_display = ('name', 'url_type_choices', 'url_name')
+    list_filter = ['name', 'url_type_choices']  # 排序
 site.register(models.StudyRecord,StudyRecordAdmin)
 site.register(models.CourseRecord,CourseRecordAdmin)
 site.register(models.Customer,CustomerAdmin)
@@ -194,5 +198,6 @@ site.register(models.Course,CourseAdmin)
 site.register(models.UserProfile,UserProfileAdmin)
 site.register(models.Enrollment,EnrollmentAdmin)
 site.register(models.CustomerFollowUp,CustomerFollowUpAdmin)
+site.register(models.Menu,MenuAdmin)
 
 

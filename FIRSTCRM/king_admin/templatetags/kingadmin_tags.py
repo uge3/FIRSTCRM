@@ -95,7 +95,6 @@ def build_table_row(admin_obj,obj):
                 if hasattr(admin_obj,column):#从自定义的函数中取值
                     column_func=getattr(admin_obj,column)#
                     admin_obj.instance=obj#对象加入
-
                     column_not.append(column)#加入非表中字段列表,
                     admin_obj.column_not=column_not#对象加入
                     column_data=column_func()
@@ -124,7 +123,8 @@ def verbose_name_set(admin_obj,column):
 def get_filter_field (filter_column,admin_obj):#过滤条件
     print("admin obj",admin_obj.model ,filter_column)
     field_obj = admin_obj.model._meta.get_field(filter_column)
-    select_ele = """<select class="form-control" name='{filter_column}'><option class="form-control" value=""></option>""" #标签 字符串
+    select_ele = """<select class="form-control" name='{filter_column}'>""" #标签 字符串
+    # select_ele = """<select class="form-control" name='{filter_column}'><option class="form-control" value=""></option>""" #标签 字符串
     #if type(field_obj).__name__=='ForeignKey':
 
     if type(field_obj).__name__ in ['DateTimeField','DateField']:#如果是时间格式

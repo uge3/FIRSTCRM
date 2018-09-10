@@ -2,7 +2,8 @@
 
 
 
-from django.core.urlresolvers import resolve
+# from django.core.urlresolvers import resolve
+from django.urls import resolve
 from django.shortcuts import render,redirect,HttpResponse
 from kingadmin.permission_list import perm_dic
 from django.conf import settings

@@ -1,25 +1,24 @@
+import json
 import os
 import random
 import string
+from io import BytesIO
 
+from django.contrib.auth.hashers import make_password
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError
-from django.shortcuts import render,HttpResponse,redirect
+from django.shortcuts import render, HttpResponse, redirect
 
 from FIRSTCRM import settings
 from crm import models
 from crm.forms import forms
-
-# Create your views here.
-from crm.permissions import permission
-from king_admin.utils.permissions import permission as king_admin_permission
-import json
-from io import BytesIO
-from king_admin.utils.check_code import create_validate_code
 from crm.forms.account import RegisterForm
-from django.core.exceptions import ValidationError
-from django.contrib.auth.hashers import make_password, check_password
-from king_admin import base_admin
+from king_admin.utils.check_code import create_validate_code
+from king_admin.utils.permissions import permission as king_admin_permission
+# Create your views here.
+from utils.permissions import permission
+
 
 def jsonp(request):
     func = request.GET.get('callback')

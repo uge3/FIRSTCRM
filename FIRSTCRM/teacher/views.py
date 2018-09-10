@@ -1,23 +1,26 @@
-from django.shortcuts import render,HttpResponse,redirect
-from crm import models
-from FIRSTCRM import settings
-import os,json,time
-from crm.permissions import permission
-from king_admin.utils.permissions import permission as king_admin_permission
+import os
+
 from  django.contrib.auth.decorators import login_required
-from rest_framework.permissions import AllowAny
-from rest_framework.views import APIView
+# from rest_framework.permissions import AllowAny
+# from rest_framework.views import APIView
 from django.http import StreamingHttpResponse
-import FIRSTCRM.settings
+from django.shortcuts import render, redirect
+
+from FIRSTCRM import settings
+from crm import models
+from king_admin import base_admin
+from king_admin.utils.page import get_orderby
 # from django.core.servers.basehttp import FileWrapper
 from king_admin.utils.pagination import Page as Pagination
-from king_admin.utils.page import pag_list,filter_querysets,get_queryset_search_result,get_orderby
-from king_admin import base_admin
+# from utils.permissions import permission
+from utils.permissions_2 import permission
+
 
 #讲师首页
 #@king_admin_permission.check_permission#kingadmin权限装饰器
-@permission.check_permission#权限装饰器
 @login_required
+@permission.check_permission#权限装饰器
+
 def index(request):
     user_id=request.user.id
     userinfo=models.UserProfile.objects.get(id=user_id)#帐号对象
@@ -31,16 +34,30 @@ def teacher_my_classes(request):
     # print(request.user.id,'-------=========')
     user_id=request.user.id
     admin_obj = base_admin.site.registered_sites['crm']['classlist']#取自定每页显示的数量
-    print(type(admin_obj),'adminob类型')
+    print(type(admin_obj),'adminob类型',)
     classlist=models.UserProfile.objects.get(id=user_id).classlist_set.all()#讲师所教班级
+    print(classlist,type(classlist),'classlist类型')
     #classlist2=admin_obj.filter(id=user_id).all()
-    queryset,condtions =  filter_querysets(request, classlist)# 调用条件过滤
-    queryset = get_queryset_search_result(request,queryset,admin_obj)#关键搜索
-    sorted_queryset = get_orderby(request,queryset)#排序
-    page = request.GET.get('page')#获取当前页面数
-    objs=pag_list(page,sorted_queryset,admin_obj)#调用函数 分页
-    admin_obj.filter_condtions=condtions#总数量
-    admin_obj.querysets =  objs#数据
+    #queryset,condtions =  filter_querysets(request, classlist)# 调用条件过滤
+    #print('condtios',condtions,type(condtions))
+    #queryset = get_queryset_search_result(request,queryset,admin_obj)#关键搜索
+    #sorted_queryset = get_orderby(request,queryset)#排序
+
+    # print(type(sorted_queryset),sorted_queryset,'sorted_queryset类型')
+    # page = request.GET.get('page')#获取当前页面数
+    # objs=pag_list(page,sorted_queryset,admin_obj)#调用函数 分页
+    # print(type(objs),objs,'objs类型')
+    # admin_obj.filter_condtions=condtions#总数量
+    # admin_obj.querysets =  objs#数据
+    #当前页数 默认为1
+    sorted_queryset = get_orderby(request,classlist)#排序
+    data_count=len(sorted_queryset)
+    print(data_count)
+    page = Pagination(request.GET.get('p', 1), data_count)
+    #courserecordlist=classes_obj.courserecord_set.all()[page.start:page.end]#上课记录
+    courserecordlist=sorted_queryset[page.start:page.end]
+    #总页数 传入url
+    page_str = page.page_str('/teacher/teacher_my_classes/')
     return render(request,'teacher/teacher_my_classes.html',locals())
 
 

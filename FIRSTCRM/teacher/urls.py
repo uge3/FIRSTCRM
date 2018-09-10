@@ -16,7 +16,7 @@ Including another URLconf
 from django.conf.urls import url,include
 from django.contrib import admin
 from teacher import views
-from rest_framework.urlpatterns import format_suffix_patterns
+# from rest_framework.urlpatterns import format_suffix_patterns
 urlpatterns = [
     url(r'^$', views.index,name='teacher_index'),#讲师首页
     url(r'^teacher_my_classes/$', views.teacher_my_classes,name='my_teacher_classes'),#讲师班级
@@ -26,4 +26,4 @@ urlpatterns = [
     url(r'^king_admin/crm/classlist/(\d+)/change/$', views.my_classes_change,name='my_classes_change'),#讲师班级修改
 
 ]
-urlpatterns = format_suffix_patterns(urlpatterns)
+# urlpatterns = format_suffix_patterns(urlpatterns)

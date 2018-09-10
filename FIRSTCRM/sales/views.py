@@ -1,13 +1,13 @@
 
-from django.shortcuts import render,HttpResponse
-from crm import models
-from FIRSTCRM import settings
-import os,json,time
-from crm.permissions import permission
 from  django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
+from crm import models
 # Create your views here.
 from king_admin import views as king_views
-from king_admin import base_admin
+from utils.permissions import permission
+
+
 #销售首页
 #@permission.check_permission#权限装饰器
 @login_required

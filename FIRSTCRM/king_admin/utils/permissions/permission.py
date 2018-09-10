@@ -1,5 +1,6 @@
 from django.conf import settings
-from django.core.urlresolvers import resolve
+# from django.core.urlresolvers import resolve
+from django.urls import resolve
 from django.shortcuts import render,redirect
 
 from king_admin.utils.permissions.permission_list import perm_dic
@@ -10,7 +11,7 @@ def perm_check(*args,**kwargs):
     request = args[0]
     resolve_url_obj = resolve(request.path)#解析URL 用于#绝对URL转成动态的URLname
     current_url_name = resolve_url_obj.url_name  # 当前url的url_name
-    print('---perm:',request.user,request.user.is_authenticated(),current_url_name)
+    # print('---perm:',request.user,request.user.is_authenticated(),current_url_name)
     #match_flag = False
     match_key = None
     match_results = [False,] #后面会覆盖，加个False是为了让all(match_results)不出错
@@ -98,7 +99,7 @@ def check_permission(func):
     def inner(*args,**kwargs):
         if not perm_check(*args,**kwargs):
             request = args[0]
-            return render(request, 'kingadmin/page_403.html')
+            return render(request, 'king_admin\page_403.html')
         return func(*args,**kwargs)
     return  inner
 

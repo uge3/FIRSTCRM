@@ -38,12 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'king_admin',  #admin 模块,app
-    'kingadmin',  #admin 模块,app
+    # 'kingadmin',  #admin 模块,app
     'crm',#客户关系
     'student',#学员app
-    'financial',
-    'sales',
-    'teacher'
+    'financial',#财务
+    'sales',#销营
+    'teacher'#讲师
 ]
 
 MIDDLEWARE = [
@@ -85,23 +85,23 @@ WSGI_APPLICATION = 'FIRSTCRM.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases#配置文档
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',#使用mysql数据库
-        'NAME': 'PerfectCRM',
-        'USER': 'root',
-        'PASSWORD': 'root',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',#使用mysql数据库
+#         'NAME': 'PerfectCRM',
+#         'USER': 'root',
+#         'PASSWORD': 'root',
+#         'HOST': '127.0.0.1',
+#         'PORT': '3306',
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -142,10 +142,11 @@ USE_TZ = True
 STATIC_URL = '/static/'
 #STATIC_ROOT = os.path.join(BASE_DIR, 'statics')
 STATICFILES_DIRS = [
-     "%s/%s" %(BASE_DIR, "statics"),
-     "%s/%s" %(BASE_DIR, "/king_admin/statics"),
+     # "%s/%s" %(BASE_DIR, "statics"),
+     # "%s/%s" %(BASE_DIR, "king_admin/statics"),
 
-    #os.path.join(BASE_DIR, 'statics'),#静态目录
+    os.path.join(BASE_DIR, 'statics'),#静态目录
+    os.path.join(BASE_DIR, 'king_admin/statics'),#king_admin静态目录
     #'/path/to/others/statics/',
     # os.path.join(BASE_DIR, 'enrolled_data'),#静态目录
 ]

@@ -109,7 +109,7 @@ def get_queryset_search_result(request,queryset,admin_obj):
 #详细列表
 @login_required(login_url="/king_admin/login/")
 #@permission.check_permission
-#@king_admin_permission.check_permission#kingadmin权限装饰器
+@king_admin_permission.check_permission#kingadmin权限装饰器
 def table_data_list(request,app_name,model_name,embed=False):
     #print(request,app_name,model_name)
     #admin_obj = base_admin.site.registered_sites[app_name][model_name]#获取到表名的数据

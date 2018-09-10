@@ -1,12 +1,38 @@
-{% extends 'king_admin/base.html' %}
+{% extends 'king_admin/bases.html' %}
 
 
 {% block body %}
-<div id="bg-overlay" class="bg-img img-balloon" style="background-image: url('/static/kingadmin/img/404.gif');"></div>
-<p style="font-size: 200px">
-404
-</p>
-<h2>You have no permission to do this operation!</h2>
+<div id="container" class="cls-container">
+
+		<!-- HEADER -->
+		<!--===================================================-->
+		<div class="cls-header">
+			<div class="cls-brand">
+				<a class="box-inline" href="index.html">
+					<!-- <img alt="Nifty Admin" src="images/logo.png" class="brand-icon"> -->
+					<span class="brand-title">FIRSTCRM <span class="text-thin">系统</span></span>
+				</a>
+			</div>
+		</div>
+
+		<!-- CONTENT -->
+		<!--===================================================-->
+		<div class="cls-content">
+            <img src="/static/king_admin/img/403.jpg" alt="">
+			<h1 class="error-code text-warning">403</h1>
+
+			<p class="h4 text-thin pad-btm mar-btm">
+				<i class="fa fa-exclamation-circle fa-fw"></i>
+
+				Sorry, you don't have the permission to do this action!
+			</p>
+
+			<br>
+			<div class="pad-top"><a class="btn-link" href="/">Back to Homepage</a></div>
+		</div>
+
+
+	</div>
 
 
 {% endblock %}

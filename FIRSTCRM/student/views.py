@@ -1,11 +1,17 @@
-from django.shortcuts import render,HttpResponse
-from crm import models
-from FIRSTCRM import settings
-import os,json,time
-from crm.permissions import permission
+import json
+import os
+import time
+
+from utils.permissions_2 import permission
+# from utils.permissions import permission
 # Create your views here.
 from  django.contrib.auth.decorators import login_required
-import os,sys
+from django.shortcuts import render, HttpResponse
+
+from FIRSTCRM import settings
+from crm import models
+
+
 #学员首页
 @login_required
 @permission.check_permission#权限装饰器

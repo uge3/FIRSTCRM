@@ -1,13 +1,14 @@
+# Create your views here.
+import os
+
+from  django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 
 from FIRSTCRM import settings
 from crm import models
-
 from crm.forms import forms
-# Create your views here.
-import os
-from crm.permissions import permission
-from  django.contrib.auth.decorators import login_required
+from utils.permissions import permission
+
 
 #财务首页
 @login_required

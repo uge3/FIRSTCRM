@@ -22,11 +22,11 @@ class Customer(models.Model):
     source=models.SmallIntegerField(choices=source_choices)#选择来源
     referral_from=models.CharField(verbose_name='转介绍人QQ',max_length=64,blank=True,null=True)
     tags=models.ManyToManyField('Tag',blank=True,null=True)#标签多对多
-    consult_course=models.ForeignKey('Course',verbose_name='咨询课程')#外键课程表
+    consult_course=models.ForeignKey('Course',verbose_name='咨询课程',related_name='customer',on_delete=models.CASCADE)#外键课程表
     status_choices = ((0,'已报名'),(1,'未报名'),(2,'已退学'))
     status = models.SmallIntegerField(choices=status_choices,default=1)#学员状态
     content=models.TextField()#咨询内容
-    consultant=models.ForeignKey('UserProfile',verbose_name='课程顾问')#课程顾问
+    consultant=models.ForeignKey('UserProfile',verbose_name='课程顾问',related_name='customer',on_delete=models.CASCADE)#课程顾问
     date=models.DateTimeField(auto_now_add=True)#记录时间
     memo=models.TextField(blank=True,null=True)#备注
     def __str__(self):
@@ -70,9 +70,9 @@ class Tag(models.Model):
 ##跟进记录表
 class CustomerFollowUp(models.Model):
     '''跟进记录表'''
-    customer=models.ForeignKey('Customer')#外键  跟进的客户
+    customer=models.ForeignKey('Customer',verbose_name='客户',related_name='customerfollowup',on_delete=models.CASCADE)#外键  跟进的客户
     content=models.TextField(verbose_name='跟进内容')
-    consultant=models.ForeignKey('UserProfile')#跟进人员
+    consultant=models.ForeignKey('UserProfile',verbose_name='跟进人员',related_name='customerfollowup',on_delete=models.CASCADE)#跟进人员
     date=models.DateTimeField(auto_now_add=True)#时间
     intention_choices=((0,'2周内报名'),(1,'1个月内报名'),(2,'近期无报名计划'),(3,'已经在其它机构报名'),(4,'已报名'),(5,'已拉黑'))
     intention=models.SmallIntegerField(choices=intention_choices)#选择意向
@@ -113,9 +113,9 @@ class Branch(models.Model):
 #班级表
 class ClassList(models.Model):
     '''班级表'''
-    branch=models.ForeignKey('Branch')#校区
-    course=models.ForeignKey('Course')#关联课程
-    contract=models.ForeignKey('ContractTemplate',blank=True,null=True,default=1)#合同表
+    branch=models.ForeignKey('Branch',verbose_name='校区',related_name='classlist',on_delete=models.CASCADE)#校区
+    course=models.ForeignKey('Course',verbose_name='课程',related_name='classlist',on_delete=models.CASCADE)#关联课程
+    contract=models.ForeignKey('ContractTemplate',blank=True,null=True,default=1,verbose_name='合同',related_name='classlist',on_delete=models.CASCADE)#合同表
     class_type_choices=((0,"面授(脱产)"),(1,"面授(周末)"),(2,"网络班"))
     class_type=models.SmallIntegerField(choices=class_type_choices,verbose_name='班级类型')
     semester=models.PositiveSmallIntegerField(verbose_name='学期')
@@ -134,9 +134,9 @@ class ClassList(models.Model):
 #课程上课记录表
 class CourseRecord(models.Model):
     '''课程上课记录表'''
-    from_class=models.ForeignKey('ClassList',verbose_name='班级')#班级名
+    from_class=models.ForeignKey('ClassList',verbose_name='班级',related_name='courserecord',on_delete=models.CASCADE)#班级名
     day_num=models.PositiveSmallIntegerField(verbose_name='第几节(天)')
-    teacher=models.ForeignKey("UserProfile",verbose_name='讲师')#讲师
+    teacher=models.ForeignKey("UserProfile",verbose_name='讲师',related_name='courserecord',on_delete=models.CASCADE)#讲师
     has_homework=models.BooleanField(default=True,verbose_name='是否有作业')#是否有作业
     homework_title=models.CharField(max_length=128,blank=True,null=True,verbose_name='作业名称')#作业名称
     homework_content=models.TextField(blank=True,null=True,verbose_name='作业内容')#作业内容
@@ -154,8 +154,8 @@ class CourseRecord(models.Model):
 #学习记录表
 class StudyRecord(models.Model):
     '''学习记录表'''
-    student=models.ForeignKey("Enrollment")#外键关联  报名表
-    course_record=models.ForeignKey('CourseRecord')#外键关联 上课记录表
+    student=models.ForeignKey("Enrollment",verbose_name='报名学员',related_name='studyrecord',on_delete=models.CASCADE)#外键关联  报名表
+    course_record=models.ForeignKey('CourseRecord',verbose_name='上课记录',related_name='studyrecord',on_delete=models.CASCADE)#外键关联 上课记录表
     attendance_choices=((0,'已签到'),(1,'迟到'),(2,'缺勤'),(3,'早退'))#出勤状态
     attendance=models.SmallIntegerField(choices=attendance_choices,default=0)#出勤状态
     score_choices=((100,'A+'),(90,'A'),(85,'B+'),(80,'B'),(75,'B-'),(70,'C+'),(60,'C'),(40,'C-'),(-50,'D'),(-100,'COPY'),(0,'N/A'))#分数等级
@@ -177,9 +177,9 @@ class StudyRecord(models.Model):
 #报名表
 class Enrollment(models.Model):
     '''报名\入学表'''
-    customer=models.ForeignKey('Customer',verbose_name='客户')#客户  学员
-    enrolled_class=models.ForeignKey('ClassList',verbose_name='所报班级')#班级->课程
-    consultant=models.ForeignKey('UserProfile',verbose_name='课程顾问')#课程顾问
+    customer=models.ForeignKey('Customer',verbose_name='客户',related_name='enrollment',on_delete=models.CASCADE)#客户  学员
+    enrolled_class=models.ForeignKey('ClassList',verbose_name='所报班级',related_name='enrollment',on_delete=models.CASCADE)#班级->课程
+    consultant=models.ForeignKey('UserProfile',verbose_name='课程顾问',related_name='enrollment',on_delete=models.CASCADE)#课程顾问
     contract_agreed=models.BooleanField(default=False,verbose_name="学员已同意合同条款")#合同
     contract_approved=models.BooleanField(default=False,verbose_name="合同已审核")#合同
     date=models.DateTimeField(auto_now_add=True)#时间,精确到时分秒
@@ -198,10 +198,10 @@ class Enrollment(models.Model):
 #缴费记录
 class Payment(models.Model):
     '''缴费记录'''
-    customer=models.ForeignKey('Customer')#客户表 学员
-    course=models.ForeignKey('Course',verbose_name='所报课程')#意向课程
+    customer=models.ForeignKey('Customer',verbose_name='缴费学员',related_name='payment',on_delete=models.CASCADE)#客户表 学员
+    course=models.ForeignKey('Course',verbose_name='所报课程',related_name='payment',on_delete=models.CASCADE)#意向课程
     amount=models.PositiveIntegerField(verbose_name='数额',default=500)#所交金额
-    consultant=models.ForeignKey('UserProfile')#办理人员 课程顾问
+    consultant=models.ForeignKey('UserProfile',verbose_name='课程顾问',related_name='payment',on_delete=models.CASCADE)#办理人员 课程顾问
     date=models.DateTimeField("交款日期",auto_now_add=True)#时间
 
     def __str__(self):
@@ -245,6 +245,8 @@ class UserProfileManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
+
+
 #帐号表
 class UserProfile(AbstractBaseUser,PermissionsMixin):
     email=models.EmailField(
@@ -256,11 +258,16 @@ class UserProfile(AbstractBaseUser,PermissionsMixin):
     password = models.CharField(_('password'), max_length=128,help_text=mark_safe('''<a href='password/'>修改密码</a>'''))
     is_active = models.BooleanField(default=True)#权限
     is_admin = models.BooleanField(default=False)
+    # is_staff = models.BooleanField(
+    #     verbose_name='staff status',
+    #     default=False,
+    #     help_text='Designates whether the user can log into this admin site.',
+    # )
     roles =models.ManyToManyField("Role",blank=True)#角色关联
     objects = UserProfileManager()#创建
     USERNAME_FIELD ='email'#指定做为用户名字段
     REQUIRED_FIELDS = ['name']#必填字段
-    stu_account=models.ForeignKey("Customer",verbose_name='关联学员帐号',blank=True,null=True,help_text='报名成功后创建关联帐户')
+    stu_account=models.ForeignKey("Customer",verbose_name='关联学员帐号',blank=True,null=True,help_text='报名成功后创建关联帐户',related_name='userprofile',on_delete=models.CASCADE)
 
     def get_full_name(self):
         return self.email
@@ -270,18 +277,18 @@ class UserProfile(AbstractBaseUser,PermissionsMixin):
         return self.email
     def __str__(self):
         return self.name
-    # def has_perm(self,perm,obj=None):
-    #     "Does the user have a specific permission?"
-    #     # Simplest possible answer: Yes, always
-    #     #"""用户有一个特定的许可吗"""
-    #     #最简单的可能的答案:是的,总是
-    #     return True
-    # #
-    # def has_module_perms(self, app_label):
-    #     "Does the user have permissions to view the app `app_label`?"
-    #     #'''用户有权限查看应用‘app_label’吗?'''
-    #     # Simplest possible answer: Yes, always
-    #     return True
+    def has_perm(self,perm,obj=None):
+        "Does the user have a specific permission?"
+        # Simplest possible answer: Yes, always
+        #"""用户有一个特定的许可吗"""
+        #最简单的可能的答案:是的,总是
+        return True
+    #
+    def has_module_perms(self, app_label):
+        "Does the user have permissions to view the app `app_label`?"
+        #'''用户有权限查看应用‘app_label’吗?'''
+        # Simplest possible answer: Yes, always
+        return True
 
     @property
     def is_staff(self):
@@ -289,10 +296,12 @@ class UserProfile(AbstractBaseUser,PermissionsMixin):
         # Simplest possible answer: All admins are staff
         '''“用户的员工吗?”'''
         #最简单的可能的答案:所有管理员都是员工
-        #return self.is_admin#是不是admin权限
-        return self.is_active
+        return self.is_admin#是不是admin权限
+        # return self.is_active
+
     class Meta:
          verbose_name_plural='帐号表'
+
          permissions=(
                       #king_admin
                       ('can_access_king_admin',"KINGADMIN 首页"),
@@ -353,8 +362,20 @@ class UserProfile(AbstractBaseUser,PermissionsMixin):
 
                       )
 
+"""权限组"""
+from django.contrib.auth.models import Group
+class Groups(Group):
+    class Meta:
+        verbose_name_plural = '权限组'
 
-
+# ————————74PerfectCRM实现CRM权限和权限组限制URL————————
+# ————————75PerfectCRM实现CRM扩展权限————————
+from django.contrib.auth.models import Permission
+class Permissions(Permission):
+    dic_name = models.CharField(_('dic_name'), max_length=255)
+    class Meta:
+        verbose_name_plural = "扩展权限"
+        # ————————75PerfectCRM实现CRM扩展权限————————
 
 # class UserProfile(models.Model):
 #     '''帐号表'''
@@ -366,11 +387,23 @@ class UserProfile(AbstractBaseUser,PermissionsMixin):
 #     class Meta:
 #         verbose_name_plural='帐号表'
 
+#合同模版
+class ContractTemplate(models.Model):
+    name=models.CharField('合同名称',max_length=64,unique=True)
+    template=models.TextField()
+
+    def __str__(self):
+        return self.name
+    class Meta:
+
+        verbose_name_plural='合同表'
+
 #角色表
 class Role(models.Model):
     '''角色表'''
     name=models.CharField(max_length=32,unique=True)#唯一
-    menus=models.ManyToManyField('Menu',blank=True)#关联菜单
+    menus=models.ManyToManyField('Menu',blank=True,verbose_name='动态菜单')#关联菜单
+    menuses = models.ManyToManyField('FirstLayerMenu', verbose_name='一层菜单', blank=True)
     def __str__(self):
         return self.name
     class Meta:
@@ -388,17 +421,6 @@ class Menu(models.Model):
     class Meta:
         verbose_name='动态菜单表'
         verbose_name_plural = "动态菜单表"
-
-#合同模版
-class ContractTemplate(models.Model):
-    name=models.CharField('合同名称',max_length=64,unique=True)
-    template=models.TextField()
-
-    def __str__(self):
-        return self.name
-    class Meta:
-
-        verbose_name_plural='合同表'
 
 #     第一层侧边栏菜单
 class FirstLayerMenu(models.Model):
