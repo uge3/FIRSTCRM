@@ -2,7 +2,7 @@ from django.conf import settings
 # from django.core.urlresolvers import resolve
 from django.urls import resolve
 from django.shortcuts import render,redirect
-
+from king_admin.utils.permissions.ECJ import * #扩展的自定义函数
 from king_admin.utils.permissions.permission_list import perm_dic
 
 
@@ -15,7 +15,7 @@ def perm_check(*args,**kwargs):
     #match_flag = False
     match_key = None
     match_results = [False,] #后面会覆盖，加个False是为了让all(match_results)不出错
-    if request.user.is_authenticated() is False:
+    if request.user.is_authenticated is False:
          return redirect(settings.LOGIN_URL)
 
     for permission_key,permission_val in  perm_dic.items():#从权限字典中取相关字段
@@ -96,9 +96,13 @@ def perm_check(*args,**kwargs):
 
 #装饰器函数
 def check_permission(func):
-    def inner(*args,**kwargs):
+    def inner(*args,**kwargs):#'开始权限匹配
+        request = args[0]
+        if request.user.is_superuser == True:
+            print('超级管理员')
+            return func(*args, **kwargs)  # 直接返回 真
         if not perm_check(*args,**kwargs):
-            request = args[0]
+            # request = args[0]
             return render(request, 'king_admin\page_403.html')
         return func(*args,**kwargs)
     return  inner
