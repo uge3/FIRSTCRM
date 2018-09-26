@@ -1,4 +1,4 @@
-
+from king_admin.utils.permissions import custom_perm_logic
 from king_admin.utils.permissions import CJ  # 自定义权限钩子
 perm_dic={
 

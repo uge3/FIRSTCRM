@@ -98,7 +98,7 @@ def perm_check(*args,**kwargs):
 def check_permission(func):
     def inner(*args,**kwargs):#'开始权限匹配
         request = args[0]
-        if request.user.is_superuser == True:
+        if request.user.is_admin == True:
             print('超级管理员')
             return func(*args, **kwargs)  # 直接返回 真
         if not perm_check(*args,**kwargs):
